@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_starter/router/app_router.dart';
 
-void main() {
+Future<void> main() async {
+
+  // Load environment variables before running the app
+  await dotenv.load(fileName: '.env');
+  
   runApp(const MyPrivyStarterApp());
 }
 
