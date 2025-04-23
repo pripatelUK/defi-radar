@@ -38,6 +38,7 @@ dependencies:
   flutter_bloc: ^9.1.0
   flutter_dotenv: ^5.1.0
   privy_flutter: ^0.0.7
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -59,3 +60,7 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  # Add .env file as an asset
+  assets:
+    - .env
