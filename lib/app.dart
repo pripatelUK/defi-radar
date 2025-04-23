@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_starter/core/privy_manager.dart';
 import 'package:go_router/go_router.dart';
 import 'router/app_router.dart';
 
-class AppScreen extends StatefulWidget {
-  const AppScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  AppScreenState createState() => AppScreenState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
-class AppScreenState extends State<AppScreen> {
+class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
+    PrivyManager().initializePrivy();
     super.initState();
   }
 
