@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_starter/app.dart';
+import 'package:flutter_starter/router/app_router.dart';
 
 void main() {
   runApp(const MyPrivyStarterApp());
@@ -10,10 +10,14 @@ class MyPrivyStarterApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp.router(
       title: "Privy Starter Repo",
       debugShowCheckedModeBanner: false,
-      home: AppScreen(), // Ensure this is wrapped inside MaterialApp
+      routerConfig: AppRouter().router,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+      ),
     );
   }
 }
