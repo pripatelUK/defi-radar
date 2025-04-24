@@ -60,7 +60,8 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
         // Success handler - code was sent successfully
         onSuccess: (_) {
           setState(() {
-            codeSent = true;  // This will trigger UI to show the code input field
+            codeSent =
+                true; // This will trigger UI to show the code input field
             errorMessage = null;
             isLoading = false;
           });
@@ -69,8 +70,8 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
         // Failure handler - something went wrong on Privy's end
         onFailure: (error) {
           setState(() {
-            errorMessage = error.message;  // Store error message from Privy
-            codeSent = false;  // Ensure code input remains hidden
+            errorMessage = error.message; // Store error message from Privy
+            codeSent = false; // Ensure code input remains hidden
             isLoading = false;
           });
           showMessage("Error sending code: ${error.message}", isError: true);
@@ -105,8 +106,9 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
       // Call Privy SDK to verify the code and complete authentication
       // This performs verification against Privy's authentication service
       final result = await _privy.email.loginWithCode(
-        code: code,  // The verification code entered by user
-        email: emailController.text.trim(),  // The email address to verify against
+        code: code, // The verification code entered by user
+        email:
+            emailController.text.trim(), // The email address to verify against
       );
 
       // Handle the authentication result
