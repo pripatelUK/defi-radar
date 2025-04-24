@@ -41,7 +41,7 @@ class AppRouter {
       GoRoute(
         path: authenticatedPath,
         name: authenticatedRoute,
-        builder: (context, staRte) => const AuthenticatedScreen(),
+        builder: (context, state) => const AuthenticatedScreen(),
       ),
       GoRoute(
         path: walletPath,
