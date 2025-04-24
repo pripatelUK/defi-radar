@@ -61,6 +61,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # Add .env file as an asset
+  # Add .env file and other assets
   assets:
     - .env
+    - lib/assets/
