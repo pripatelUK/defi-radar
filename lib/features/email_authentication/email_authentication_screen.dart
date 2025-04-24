@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:privy_flutter/privy_flutter.dart';
-import '../../core/privy_manager.dart';
-import '../../router/app_router.dart';
+import 'package:flutter_starter/core/privy_manager.dart';
+
 
 class EmailAuthenticationScreen extends StatefulWidget {
   const EmailAuthenticationScreen({super.key});
@@ -18,9 +16,6 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
   bool codeSent = false;
   String? errorMessage;
   bool isLoading = false;
-
-  // Access the Privy SDK using the manager
-  Privy get _privy => PrivyManager.privy;
 
   /// Shows a message using a Snackbar
   void showMessage(String message, {bool isError = false}) {
@@ -53,7 +48,7 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
     try {
       // Call Privy SDK to send verification code
       // This makes an API request to Privy's authentication service
-      final result = await _privy.email.sendCode(email);
+      final result = await privyManager.privy.email.sendCode(email);
 
       // Handle the result using Privy's Result type which has onSuccess and onFailure handlers
       result.fold(
@@ -105,7 +100,7 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
     try {
       // Call Privy SDK to verify the code and complete authentication
       // This performs verification against Privy's authentication service
-      final result = await _privy.email.loginWithCode(
+      final result = await privyManager.privy.email.loginWithCode(
         code: code, // The verification code entered by user
         email:
             emailController.text.trim(), // The email address to verify against
@@ -121,11 +116,11 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
           });
           showMessage("Authentication successful!");
 
-          // Navigate to authenticated screen using project's GoRouter pattern
+          // Navigate to authenticated screen(un needed if using auth state dependant routing)
           // The authenticatedPath constant is defined in app_router.dart
-          if (mounted) {
-            context.go(AppRouter.authenticatedPath);
-          }
+          // if (mounted) {
+          //   context.go(AppRouter.authenticatedPath);
+          // }
         },
         // Failure handler - authentication failed
         onFailure: (error) {
