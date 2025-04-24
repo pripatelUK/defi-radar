@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_starter/features/authenticated/authenticated_screen.dart';
+import 'package:flutter_starter/features/email_authentication/email_authentication_screen.dart';
+import 'package:flutter_starter/features/home/home_screen.dart';
+import 'package:flutter_starter/features/wallet/wallet_screen.dart';
 import 'package:go_router/go_router.dart';
-
-import '../app.dart';
-import '../features/authenticated/authenticated_screen.dart';
-import '../features/email_authentication/email_authentication_screen.dart';
-import '../features/wallet/wallet_screen.dart';
 
 class AppRouter {
   // Private constructor to prevent direct instantiation
