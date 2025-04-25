@@ -20,6 +20,10 @@ class _AuthenticatedScreenState extends State<AuthenticatedScreen> {
   final _privyManager = privyManager;
   late PrivyUser _user;
 
+  // Track loading states
+  bool _isCreatingEthereumWallet = false;
+  bool _isCreatingSolanaWallet = false;
+
   @override
   void initState() {
     super.initState();
@@ -56,6 +60,78 @@ class _AuthenticatedScreenState extends State<AuthenticatedScreen> {
       if (mounted) {
         _showMessage("Logout error: $e", isError: true);
       }
+    }
+  }
+
+  // Create Ethereum wallet
+  Future<void> _createEthereumWallet() async {
+
+    setState(() {
+      _isCreatingEthereumWallet = true;
+    });
+
+    try {
+      final result = await _user.createEthereumWallet(allowAdditional: true);
+
+      result.fold(
+        onSuccess: (wallet) {
+          _showMessage("Ethereum wallet created: ${wallet.address}");
+          // Refresh user to update the wallet list
+          setState(() {
+            _isCreatingEthereumWallet = false;
+          });
+        },
+        onFailure: (error) {
+          setState(() {
+            _isCreatingEthereumWallet = false;
+          });
+          _showMessage(
+            "Error creating wallet: ${error.message}",
+            isError: true,
+          );
+        },
+      );
+    } catch (e) {
+      setState(() {
+        _isCreatingEthereumWallet = false;
+      });
+      _showMessage("Unexpected error: $e", isError: true);
+    }
+  }
+
+  // Create Solana wallet
+  Future<void> _createSolanaWallet() async {
+    
+    setState(() {
+      _isCreatingSolanaWallet = true;
+    });
+
+    try {
+      final result = await _user.createSolanaWallet();
+
+      result.fold(
+        onSuccess: (wallet) {
+          _showMessage("Solana wallet created: ${wallet.address}");
+          // Refresh user to update the wallet list
+          setState(() {
+            _isCreatingSolanaWallet = false;
+          });
+        },
+        onFailure: (error) {
+          setState(() {
+            _isCreatingSolanaWallet = false;
+          });
+          _showMessage(
+            "Error creating wallet: ${error.message}",
+            isError: true,
+          );
+        },
+      );
+    } catch (e) {
+      setState(() {
+        _isCreatingSolanaWallet = false;
+      });
+      _showMessage("Unexpected error: $e", isError: true);
     }
   }
 
@@ -112,14 +188,66 @@ class _AuthenticatedScreenState extends State<AuthenticatedScreen> {
                 onTap: () => context.go(AppRouter.walletPath),
                 child: SolanaWalletsWidget(user: _user),
               ),
-
-              const SizedBox(height: 24),
-
-              // Logout Button
-              ElevatedButton(onPressed: _logout, child: const Text('Logout')),
             ],
           ),
         ),
+      ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          // Ethereum wallet creation button
+          FloatingActionButton.extended(
+            heroTag: "createEthereum",
+            onPressed:
+                (_isCreatingEthereumWallet || _isCreatingSolanaWallet)
+                    ? null
+                    : _createEthereumWallet,
+            icon:
+                _isCreatingEthereumWallet
+                    ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                    : null,
+            label: const Text('Create ETH Wallet'),
+            backgroundColor:
+                (_isCreatingEthereumWallet || _isCreatingSolanaWallet)
+                    ? Colors.grey
+                    : null,
+          ),
+          const SizedBox(height: 8),
+          // Solana wallet creation button
+          FloatingActionButton.extended(
+            heroTag: "createSolana",
+            onPressed:
+                (_isCreatingSolanaWallet || _isCreatingEthereumWallet)
+                    ? null
+                    : _createSolanaWallet,
+            icon:
+                _isCreatingSolanaWallet
+                    ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                    : null,
+            label: const Text('Create SOL Wallet'),
+            backgroundColor:
+                (_isCreatingSolanaWallet || _isCreatingEthereumWallet)
+                    ? Colors.grey
+                    : null,
+          ),
+          const SizedBox(height: 8),
+          FloatingActionButton.extended(
+            heroTag: "logout",
+            onPressed: _logout,
+            icon: const Icon(Icons.logout),
+            label: const Text('Logout'),
+            backgroundColor: Colors.redAccent,
+          ),
+        ],
       ),
     );
   }
