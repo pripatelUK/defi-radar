@@ -204,10 +204,10 @@ packages:
     dependency: "direct main"
     description:
       name: privy_flutter
-      sha256: "8336d14fd6505a669ca500639c259831b1990c0a60b3e61ce4ddfe908db0601d"
+      sha256: "49f89fc7d3d6042ad6d027ac406b89ded7f38a8e04b2db2c2f784f3553e8173a"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.7"
+    version: "0.0.8"
   provider:
     dependency: transitive
     description:
