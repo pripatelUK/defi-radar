@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_starter/core/privy_manager.dart';
+import 'package:go_router/go_router.dart';
 
 
 class EmailAuthenticationScreen extends StatefulWidget {
@@ -148,6 +149,10 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text('Email Authentication'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
