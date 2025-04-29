@@ -32,6 +32,9 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
   }
 
   /// Sends OTP to the provided email
+  /// 
+  /// NOTE: To use email authentication, you must enable it in the Privy Dashboard:
+  /// https://dashboard.privy.io/apps?page=login-methods
   Future<void> sendCode() async {
     // Get and validate the email input
     String email = emailController.text.trim();
