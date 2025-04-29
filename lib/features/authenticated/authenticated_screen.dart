@@ -47,22 +47,6 @@ class _AuthenticatedScreenState extends State<AuthenticatedScreen> {
     );
   }
 
-  // Handle back navigation with logout
-  Future<void> _handleBackNavigation() async {
-    try {
-      await _privyManager.privy.logout();
-
-      if (mounted) {
-        // Navigate back to home after logout
-        context.go('/');
-      }
-    } catch (e) {
-      if (mounted) {
-        _showMessage("Logout error: $e", isError: true);
-      }
-    }
-  }
-
   // Create Ethereum wallet
   Future<void> _createEthereumWallet() async {
 
@@ -154,10 +138,6 @@ class _AuthenticatedScreenState extends State<AuthenticatedScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Profile'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: _handleBackNavigation,
-        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
