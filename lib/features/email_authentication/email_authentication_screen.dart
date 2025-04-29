@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_starter/core/privy_manager.dart';
 import 'package:go_router/go_router.dart';
-import 'package:privy_flutter/privy_flutter.dart';
-import '../../core/privy_manager.dart';
-import '../../router/app_router.dart';
+
 
 class EmailAuthenticationScreen extends StatefulWidget {
   const EmailAuthenticationScreen({super.key});
@@ -18,9 +17,6 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
   bool codeSent = false;
   String? errorMessage;
   bool isLoading = false;
-
-  // Access the Privy SDK using the manager
-  Privy get _privy => PrivyManager.privy;
 
   /// Shows a message using a Snackbar
   void showMessage(String message, {bool isError = false}) {
@@ -53,14 +49,15 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
     try {
       // Call Privy SDK to send verification code
       // This makes an API request to Privy's authentication service
-      final result = await _privy.email.sendCode(email);
+      final result = await privyManager.privy.email.sendCode(email);
 
       // Handle the result using Privy's Result type which has onSuccess and onFailure handlers
       result.fold(
         // Success handler - code was sent successfully
         onSuccess: (_) {
           setState(() {
-            codeSent = true;  // This will trigger UI to show the code input field
+            codeSent =
+                true; // This will trigger UI to show the code input field
             errorMessage = null;
             isLoading = false;
           });
@@ -69,8 +66,8 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
         // Failure handler - something went wrong on Privy's end
         onFailure: (error) {
           setState(() {
-            errorMessage = error.message;  // Store error message from Privy
-            codeSent = false;  // Ensure code input remains hidden
+            errorMessage = error.message; // Store error message from Privy
+            codeSent = false; // Ensure code input remains hidden
             isLoading = false;
           });
           showMessage("Error sending code: ${error.message}", isError: true);
@@ -104,9 +101,10 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
     try {
       // Call Privy SDK to verify the code and complete authentication
       // This performs verification against Privy's authentication service
-      final result = await _privy.email.loginWithCode(
-        code: code,  // The verification code entered by user
-        email: emailController.text.trim(),  // The email address to verify against
+      final result = await privyManager.privy.email.loginWithCode(
+        code: code, // The verification code entered by user
+        email:
+            emailController.text.trim(), // The email address to verify against
       );
 
       // Handle the authentication result
@@ -119,11 +117,11 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
           });
           showMessage("Authentication successful!");
 
-          // Navigate to authenticated screen using project's GoRouter pattern
+          // Navigate to authenticated screen(un needed if using auth state dependant routing)
           // The authenticatedPath constant is defined in app_router.dart
-          if (mounted) {
-            context.go(AppRouter.authenticatedPath);
-          }
+          // if (mounted) {
+          //   context.go(AppRouter.authenticatedPath);
+          // }
         },
         // Failure handler - authentication failed
         onFailure: (error) {
@@ -151,6 +149,10 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text('Email Authentication'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),

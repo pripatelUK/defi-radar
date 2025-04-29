@@ -20,27 +20,32 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initializePrivyAndAwaitReady() async {
-    // Initialize Privy
-    PrivyManager().initializePrivy();
+    try {
+      // Initialize Privy first
+      privyManager.initializePrivy();
+      // Then wait for it to be ready
+      await privyManager.privy.awaitReady();
 
-    // Wait for Privy to be ready
-    await PrivyManager.privy.awaitReady();
+      // Update state to indicate Privy is ready
+      if (mounted) {
+        setState(() {
+          _isPrivyReady = true;
+        });
 
-    // Update state to indicate Privy is ready
-    if (mounted) {
-      setState(() {
-        _isPrivyReady = true;
-      });
+        // Set up the auth listener now that Privy is ready
+        // This listener will handle navigation when auth state changes
+        privyManager.setupAuthListenerAndNavigate(context);
+      
+      }
+    } catch (e) {
+      debugPrint("Error initializing Privy: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text("Welcome to Privy"),
-      ),
+      appBar: AppBar(centerTitle: true, title: const Text("Welcome to Privy")),
       body: Center(
         child:
             _isPrivyReady
