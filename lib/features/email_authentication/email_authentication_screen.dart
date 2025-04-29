@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_starter/core/privy_manager.dart';
+import 'package:flutter_starter/router/app_router.dart';
 import 'package:go_router/go_router.dart';
 
 
@@ -120,11 +121,10 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
           });
           showMessage("Authentication successful!");
 
-          // Navigate to authenticated screen(un needed if using auth state dependant routing)
-          // The authenticatedPath constant is defined in app_router.dart
-          // if (mounted) {
-          //   context.go(AppRouter.authenticatedPath);
-          // }
+          // Navigate to authenticated screen
+          if (mounted) {
+            context.go(AppRouter.authenticatedPath);
+          }
         },
         // Failure handler - authentication failed
         onFailure: (error) {
