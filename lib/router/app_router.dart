@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+// import 'package:flutter_starter/core/privy_manager.dart'; // Removed unused import
 import 'package:flutter_starter/features/authenticated/authenticated_screen.dart';
 import 'package:flutter_starter/features/email_authentication/email_authentication_screen.dart';
 import 'package:flutter_starter/features/home/home_screen.dart';
 import 'package:flutter_starter/features/wallet/wallet_screen.dart';
 import 'package:go_router/go_router.dart';
+import 'package:privy_flutter/privy_flutter.dart';
 
 class AppRouter {
   // Private constructor to prevent direct instantiation
@@ -46,7 +48,24 @@ class AppRouter {
       GoRoute(
         path: walletPath,
         name: walletRoute,
-        builder: (context, state) => const WalletScreen(),
+        builder: (context, state) {
+          // Extract the wallet object from the 'extra' parameter
+          final wallet = state.extra;
+
+          if (wallet is EmbeddedEthereumWallet) {
+            return WalletScreen(ethereumWallet: wallet); 
+          } else if (wallet is EmbeddedSolanaWallet) {
+            return WalletScreen(solanaWallet: wallet); 
+          } else {
+            // Handle error: Invalid or missing wallet object
+            return Scaffold(
+              appBar: AppBar(title: const Text('Error')),
+              body: const Center(
+                child: Text('Invalid wallet data provided.'),
+              ),
+            );
+          }
+        },
       ),
       GoRoute(
         path: emailAuthPath,
