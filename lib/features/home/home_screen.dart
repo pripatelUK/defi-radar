@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_starter/core/navigation_manager.dart';
 import 'package:flutter_starter/core/privy_manager.dart';
 import 'package:flutter_starter/router/app_router.dart';
 import 'package:go_router/go_router.dart';
+import 'package:privy_flutter/privy_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,6 +15,7 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   bool _isPrivyReady = false;
+  StreamSubscription<AuthState>? _authSubscription;
 
   @override
   void initState() {
@@ -31,17 +35,39 @@ class HomeScreenState extends State<HomeScreen> {
         setState(() {
           _isPrivyReady = true;
         });
-
-        // Set up the auth listener now that Privy is ready
-        // This listener will handle navigation when auth state changes
-        privyManager.setupAuthListenerAndNavigate(context);
-      
+        // Set up the auth listener directly in the HomeScreen
+        _setupAuthListener();
       }
     } catch (e) {
       debugPrint("Error initializing Privy: $e");
     }
   }
 
+  /// Set up listener for auth state changes
+  void _setupAuthListener() {
+    // Cancel any existing subscription
+    _authSubscription?.cancel();
+    
+    // Subscribe to auth state changes
+    _authSubscription = privyManager.privy.authStateStream.listen((state) {
+      debugPrint('Auth state changed: $state');
+      
+      if (state is Authenticated && mounted) {
+        debugPrint('User authenticated: ${state.user.id}');
+        // Navigate to authenticated screen
+        navigationManager.navigateToAuthenticatedScreen(context);
+      }
+    });
+  }
+
+
+  @override
+  void dispose() {
+    // Clean up subscription when widget is disposed
+    _authSubscription?.cancel();
+    super.dispose();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
