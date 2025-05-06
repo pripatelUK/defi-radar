@@ -3,27 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:privy_flutter/privy_flutter.dart';
-import 'package:convert/convert.dart'; // Re-added for hex encoding
 
-class WalletScreen extends StatefulWidget {
-  final EmbeddedEthereumWallet? ethereumWallet;
-  final EmbeddedSolanaWallet? solanaWallet;
+// Displays wallet details and provides actions for a Solana wallet.
+class SolanaWalletScreen extends StatefulWidget {
+  final EmbeddedSolanaWallet solanaWallet;
 
-  const WalletScreen({super.key, this.ethereumWallet, this.solanaWallet});
+  const SolanaWalletScreen({super.key, required this.solanaWallet});
 
   @override
-  State<WalletScreen> createState() => _WalletScreenState();
+  State<SolanaWalletScreen> createState() => _SolanaWalletScreenState();
 }
 
-class _WalletScreenState extends State<WalletScreen> {
-  // Controller for the message input field
+class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
+  // Controller for the message input TextField.
   final TextEditingController _messageController = TextEditingController();
-  // State variable to hold the latest signature
+  // Stores the latest signature generated.
   String? _latestSignature;
 
-  // Listener function to trigger rebuilds
+  // Updates the UI when the message input changes, to enable/disable the sign button.
   void _onMessageChanged() {
-    setState(() {}); // Trigger rebuild to update button state
+    setState(() {});
   }
 
   @override
@@ -39,7 +38,7 @@ class _WalletScreenState extends State<WalletScreen> {
     super.dispose();
   }
 
-  // Helper function to copy signature
+  // Copies the latest signature to the clipboard and shows a SnackBar.
   void _copySignatureToClipboard() {
     if (_latestSignature != null && _latestSignature!.isNotEmpty) {
       Clipboard.setData(ClipboardData(text: _latestSignature!));
@@ -49,94 +48,12 @@ class _WalletScreenState extends State<WalletScreen> {
     }
   }
 
-  // Method to sign an Ethereum message
-  Future<void> _signEthereumMessage() async {
-    final ethereumWallet = widget.ethereumWallet;
-    final messageToSign =
-        _messageController.text.trim(); // Get message from controller
-
-    if (ethereumWallet == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("No Ethereum wallet found."),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    // Check if message is empty
-    if (messageToSign.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter a message to sign."),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-
-    // Encode the user's message
-    final messageBytes = utf8.encode(messageToSign);
-    // Hex encode the message bytes for personal_sign
-    final String hexMessage = '0x${hex.encode(messageBytes)}';
-
-    // Create the RPC request object for personal_sign
-    final rpcRequest = EthereumRpcRequest(
-      method: "personal_sign",
-      params: [hexMessage, ethereumWallet.address],
-    );
-
-    // Call request method on the provider
-    final result = await ethereumWallet.provider.request(rpcRequest);
-
-    // Handle the Result<EthereumRpcResponse>
-    result.fold(
-      onSuccess: (response) {
-        final signature = response.data.toString();
-        // Update state with the new signature
-        setState(() {
-          _latestSignature = signature;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("ETH Signature: $signature"),
-            backgroundColor: Colors.green,
-          ),
-        );
-      },
-      onFailure: (error) {
-        // Clear previous signature on error
-        setState(() {
-          _latestSignature = null;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Error signing ETH message: ${error.message}"),
-            backgroundColor: Colors.red,
-          ),
-        );
-      },
-    );
-  }
-
-  // Method to sign a Solana message
+  // Signs the message entered by the user using the Solana wallet.
   Future<void> _signSolanaMessage() async {
-    final solanaWallet = widget.solanaWallet;
-    final messageToSign =
-        _messageController.text.trim(); // Get message from controller
+    // solanaWallet is non-nullable from widget.solanaWallet
+    final messageToSign = _messageController.text.trim();
 
-    if (solanaWallet == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("No Solana wallet found."),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    // Check if message is empty
+    // Check if message is empty.
     if (messageToSign.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -147,16 +64,13 @@ class _WalletScreenState extends State<WalletScreen> {
       return;
     }
 
-    // Convert the user's message to Base64 encoded message for Solana
+    // Solana's signMessage expects a Base64 encoded string.
     final String base64Message = base64Encode(utf8.encode(messageToSign));
+    final result = await widget.solanaWallet.provider.signMessage(base64Message);
 
-    // Call the signMessage function, which returns a `Result<String>`
-    final result = await solanaWallet.provider.signMessage(base64Message);
-
-    // Handle the result using `.fold()`
+    // Handle the result (success or failure) from the signMessage call.
     result.fold(
       onSuccess: (signature) {
-        // Update state with the new signature
         setState(() {
           _latestSignature = signature;
         });
@@ -168,7 +82,6 @@ class _WalletScreenState extends State<WalletScreen> {
         );
       },
       onFailure: (error) {
-        // Clear previous signature on error
         setState(() {
           _latestSignature = null;
         });
@@ -183,25 +96,21 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   @override
+  // Builds the UI for the Solana Wallet screen.
   Widget build(BuildContext context) {
-    // Determine wallet type and details from widget properties
-    final bool isEthereum = widget.ethereumWallet != null;
-    final walletDetails =
-        isEthereum ? widget.ethereumWallet! : widget.solanaWallet!;
-    final String walletType = isEthereum ? 'Ethereum' : 'Solana';
-    final String address = walletDetails.address;
-    final String? recoveryMethod = walletDetails.recoveryMethod;
-    final int hdWalletIndex = walletDetails.hdWalletIndex;
-    final String? chainId = walletDetails.chainId;
+    const String walletType = 'Solana';
+    final String address = widget.solanaWallet.address;
+    final String? recoveryMethod = widget.solanaWallet.recoveryMethod;
+    final int hdWalletIndex = widget.solanaWallet.hdWalletIndex;
+    final String? chainId = widget.solanaWallet.chainId;
 
     return Scaffold(
       appBar: AppBar(
         title: Text('$walletType Wallet Details'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          // Use canPop to avoid issues if this is the first screen
-          onPressed:
-              () => context.canPop() ? context.pop() : context.go('/profile'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/profile'),
         ),
       ),
       body: SafeArea(
@@ -219,19 +128,20 @@ class _WalletScreenState extends State<WalletScreen> {
                     const SizedBox(width: 12),
                     Text(
                       '$walletType Wallet',
-                      style: Theme.of(context).textTheme.headlineMedium
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
                 const SizedBox(height: 20),
-                Divider(),
+                const Divider(),
                 const SizedBox(height: 20),
+                // Displays various details of the Solana wallet.
                 _buildDetailItem(context, 'Address', address),
-                // Display chainId if available
                 if (chainId != null && chainId.isNotEmpty)
                   _buildDetailItem(context, 'Chain ID', chainId),
-
                 if (recoveryMethod != null && recoveryMethod.isNotEmpty)
                   _buildDetailItem(context, 'Recovery Method', recoveryMethod),
                 _buildDetailItem(
@@ -240,7 +150,6 @@ class _WalletScreenState extends State<WalletScreen> {
                   hdWalletIndex.toString(),
                 ),
                 const SizedBox(height: 24),
-                // Message Input Field
                 TextField(
                   controller: _messageController,
                   decoration: const InputDecoration(
@@ -256,7 +165,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     OutlinedButton.icon(
-                      icon: Icon(Icons.copy),
+                      icon: const Icon(Icons.copy),
                       label: const Text('Copy Wallet Address'),
                       onPressed: () {
                         Clipboard.setData(ClipboardData(text: address));
@@ -267,7 +176,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         );
                       },
                       style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 10,
                           vertical: 12,
                         ),
@@ -275,17 +184,13 @@ class _WalletScreenState extends State<WalletScreen> {
                     ),
                     const SizedBox(width: 16),
                     ElevatedButton.icon(
-                      icon: Icon(Icons.edit),
+                      icon: const Icon(Icons.edit),
                       label: const Text('Sign Message'),
-                      // Disable button if message is empty
-                      onPressed:
-                          _messageController.text.trim().isEmpty
-                              ? null
-                              : (isEthereum
-                                  ? _signEthereumMessage
-                                  : _signSolanaMessage),
+                      onPressed: _messageController.text.trim().isEmpty
+                          ? null
+                          : _signSolanaMessage, // Solana specific signing method
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 12,
                         ),
@@ -294,17 +199,18 @@ class _WalletScreenState extends State<WalletScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
-
-                // Display Latest Signature Section
+                // Displays the latest signature if available.
                 if (_latestSignature != null)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Divider(),
+                      const Divider(),
                       const SizedBox(height: 16),
                       Text(
                         'Latest Signature:',
-                        style: Theme.of(context).textTheme.titleMedium
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
                             ?.copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 8),
@@ -322,11 +228,12 @@ class _WalletScreenState extends State<WalletScreen> {
                               Expanded(
                                 child: SelectableText(
                                   _latestSignature!,
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.bodyMedium?.copyWith(
-                                    fontFamily: 'monospace',
-                                  ), // Monospace for signature
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        fontFamily: 'monospace',
+                                      ),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -350,6 +257,7 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
+  // Helper widget to build a display item for wallet details (label and value).
   Widget _buildDetailItem(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -359,9 +267,9 @@ class _WalletScreenState extends State<WalletScreen> {
           Text(
             label,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
-            ),
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700],
+                ),
           ),
           const SizedBox(height: 4),
           SelectableText(value, style: Theme.of(context).textTheme.bodyLarge),

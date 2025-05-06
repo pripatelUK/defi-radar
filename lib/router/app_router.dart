@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_starter/features/authenticated/authenticated_screen.dart';
 import 'package:flutter_starter/features/email_authentication/email_authentication_screen.dart';
 import 'package:flutter_starter/features/home/home_screen.dart';
-import 'package:flutter_starter/features/wallet/wallet_screen.dart';
+import 'package:flutter_starter/features/wallet/eth_wallet_screen.dart';
+import 'package:flutter_starter/features/wallet/solana_wallet_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:privy_flutter/privy_flutter.dart';
 
@@ -20,14 +21,16 @@ class AppRouter {
   // Route name constants
   static const String homeRoute = 'home';
   static const String authenticatedRoute = 'authenticated';
-  static const String walletRoute = 'wallet';
   static const String emailAuthRoute = 'email-auth';
+  static const String ethWalletRoute = 'eth-wallet';
+  static const String solanaWalletRoute = 'solana-wallet';
 
   // Route path constants
   static const String homePath = '/';
-  static const String authenticatedPath = '/profile';
-  static const String walletPath = '/wallet';
   static const String emailAuthPath = '/email-auth';
+  static const String authenticatedPath = '/profile';
+  static const String ethWalletPath = '/eth-wallet';
+  static const String solanaWalletPath = '/solana-wallet';
 
   // GoRouter configuration
   late final GoRouter router = GoRouter(
@@ -43,34 +46,31 @@ class AppRouter {
       GoRoute(
         path: authenticatedPath,
         name: authenticatedRoute,
-        builder: (context, state) => const AuthenticatedScreen(),
-      ),
-      GoRoute(
-        path: walletPath,
-        name: walletRoute,
         builder: (context, state) {
-          // Extract the wallet object from the 'extra' parameter
-          final wallet = state.extra;
-
-          if (wallet is EmbeddedEthereumWallet) {
-            return WalletScreen(ethereumWallet: wallet); 
-          } else if (wallet is EmbeddedSolanaWallet) {
-            return WalletScreen(solanaWallet: wallet); 
-          } else {
-            // Handle error: Invalid or missing wallet object
-            return Scaffold(
-              appBar: AppBar(title: const Text('Error')),
-              body: const Center(
-                child: Text('Invalid wallet data provided.'),
-              ),
-            );
-          }
+          // final user = state.extra as PrivyUser?;
+          return AuthenticatedScreen();
         },
       ),
       GoRoute(
         path: emailAuthPath,
         name: emailAuthRoute,
         builder: (context, state) => const EmailAuthenticationScreen(),
+      ),
+      GoRoute(
+        path: ethWalletPath,
+        name: ethWalletRoute,
+        builder: (context, state) {
+          final wallet = state.extra as EmbeddedEthereumWallet;
+          return EthWalletScreen(ethereumWallet: wallet);
+        },
+      ),
+      GoRoute(
+        path: solanaWalletPath,
+        name: solanaWalletRoute,
+        builder: (context, state) {
+          final wallet = state.extra as EmbeddedSolanaWallet;
+          return SolanaWalletScreen(solanaWallet: wallet);
+        },
       ),
     ],
     errorBuilder:
