@@ -15,9 +15,12 @@ class EthWalletScreen extends StatefulWidget {
 }
 
 class _EthWalletScreenState extends State<EthWalletScreen> {
+  // Controller for the message input TextField.
   final TextEditingController _messageController = TextEditingController();
+  // Stores the latest signature generated.
   String? _latestSignature;
 
+  // Updates the UI when the message input changes, to enable/disable the sign button.
   void _onMessageChanged() {
     setState(() {});
   }
@@ -35,6 +38,7 @@ class _EthWalletScreenState extends State<EthWalletScreen> {
     super.dispose();
   }
 
+  // Copies the latest signature to the clipboard and shows a SnackBar.
   void _copySignatureToClipboard() {
     if (_latestSignature != null && _latestSignature!.isNotEmpty) {
       Clipboard.setData(ClipboardData(text: _latestSignature!));
@@ -44,10 +48,12 @@ class _EthWalletScreenState extends State<EthWalletScreen> {
     }
   }
 
+  // Signs the message entered by the user using the Ethereum wallet.
   Future<void> _signEthereumMessage() async {
     // ethereumWallet is non-nullable from widget.ethereumWallet
     final messageToSign = _messageController.text.trim();
 
+    // Check if message is empty
     if (messageToSign.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -58,6 +64,7 @@ class _EthWalletScreenState extends State<EthWalletScreen> {
       return;
     }
 
+    // Convert the user's message to a hex-encoded Utf8 representation for Ethereum.
     final messageBytes = utf8.encode(messageToSign);
     final String hexMessage = '0x${hex.encode(messageBytes)}';
 
@@ -68,6 +75,7 @@ class _EthWalletScreenState extends State<EthWalletScreen> {
 
     final result = await widget.ethereumWallet.provider.request(rpcRequest);
 
+    // Handle the result (success or failure) from the signMessage call.
     result.fold(
       onSuccess: (response) {
         final signature = response.data.toString();
@@ -96,6 +104,7 @@ class _EthWalletScreenState extends State<EthWalletScreen> {
   }
 
   @override
+  // Builds the UI for the Ethereum Wallet screen.
   Widget build(BuildContext context) {
     const String walletType = 'Ethereum';
     final String address = widget.ethereumWallet.address;
@@ -135,6 +144,7 @@ class _EthWalletScreenState extends State<EthWalletScreen> {
                 const SizedBox(height: 20),
                 const Divider(),
                 const SizedBox(height: 20),
+                // Displays various details of the Ethereum wallet.
                 _buildDetailItem(context, 'Address', address),
                 if (chainId != null && chainId.isNotEmpty)
                   _buildDetailItem(context, 'Chain ID', chainId),
@@ -187,7 +197,7 @@ class _EthWalletScreenState extends State<EthWalletScreen> {
                       onPressed:
                           _messageController.text.trim().isEmpty
                               ? null
-                              : _signEthereumMessage, // Call Ethereum specific method
+                              : _signEthereumMessage, // Ethereum specific signing method
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
@@ -198,6 +208,7 @@ class _EthWalletScreenState extends State<EthWalletScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
+                // Displays the latest signature if available.
                 if (_latestSignature != null)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,9 +260,10 @@ class _EthWalletScreenState extends State<EthWalletScreen> {
     );
   }
 
+  // Helper widget to build a display item for wallet details (label and value).
   Widget _buildDetailItem(BuildContext context, String label, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

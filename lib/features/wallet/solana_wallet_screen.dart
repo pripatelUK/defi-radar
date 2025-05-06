@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:privy_flutter/privy_flutter.dart';
 
+// Displays wallet details and provides actions for a Solana wallet.
 class SolanaWalletScreen extends StatefulWidget {
   final EmbeddedSolanaWallet solanaWallet;
 
@@ -14,9 +15,12 @@ class SolanaWalletScreen extends StatefulWidget {
 }
 
 class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
+  // Controller for the message input TextField.
   final TextEditingController _messageController = TextEditingController();
+  // Stores the latest signature generated.
   String? _latestSignature;
 
+  // Updates the UI when the message input changes, to enable/disable the sign button.
   void _onMessageChanged() {
     setState(() {});
   }
@@ -34,6 +38,7 @@ class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
     super.dispose();
   }
 
+  // Copies the latest signature to the clipboard and shows a SnackBar.
   void _copySignatureToClipboard() {
     if (_latestSignature != null && _latestSignature!.isNotEmpty) {
       Clipboard.setData(ClipboardData(text: _latestSignature!));
@@ -43,9 +48,12 @@ class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
     }
   }
 
+  // Signs the message entered by the user using the Solana wallet.
   Future<void> _signSolanaMessage() async {
+    // solanaWallet is non-nullable from widget.solanaWallet
     final messageToSign = _messageController.text.trim();
 
+    // Check if message is empty.
     if (messageToSign.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -56,9 +64,11 @@ class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
       return;
     }
 
+    // Solana's signMessage expects a Base64 encoded string.
     final String base64Message = base64Encode(utf8.encode(messageToSign));
     final result = await widget.solanaWallet.provider.signMessage(base64Message);
 
+    // Handle the result (success or failure) from the signMessage call.
     result.fold(
       onSuccess: (signature) {
         setState(() {
@@ -86,6 +96,7 @@ class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
   }
 
   @override
+  // Builds the UI for the Solana Wallet screen.
   Widget build(BuildContext context) {
     const String walletType = 'Solana';
     final String address = widget.solanaWallet.address;
@@ -127,6 +138,7 @@ class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
                 const SizedBox(height: 20),
                 const Divider(),
                 const SizedBox(height: 20),
+                // Displays various details of the Solana wallet.
                 _buildDetailItem(context, 'Address', address),
                 if (chainId != null && chainId.isNotEmpty)
                   _buildDetailItem(context, 'Chain ID', chainId),
@@ -176,7 +188,7 @@ class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
                       label: const Text('Sign Message'),
                       onPressed: _messageController.text.trim().isEmpty
                           ? null
-                          : _signSolanaMessage,
+                          : _signSolanaMessage, // Solana specific signing method
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
@@ -187,6 +199,7 @@ class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
+                // Displays the latest signature if available.
                 if (_latestSignature != null)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,7 +237,7 @@ class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                               Icon(
+                              Icon(
                                 Icons.copy,
                                 size: 18,
                                 color: Colors.grey[600],
@@ -244,9 +257,10 @@ class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
     );
   }
 
+  // Helper widget to build a display item for wallet details (label and value).
   Widget _buildDetailItem(BuildContext context, String label, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
