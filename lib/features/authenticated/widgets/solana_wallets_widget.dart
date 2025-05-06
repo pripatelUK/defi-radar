@@ -30,10 +30,10 @@ class SolanaWalletsWidget extends StatelessWidget {
     // Wrap in InkWell for navigation
     return InkWell(
       onTap: () {
-        // Navigate using named route and pass wallet object via 'extra'
-        context.goNamed(
-          AppRouter.walletRoute,
-          extra: wallet, // Pass the wallet object
+        // Navigate to the wallet detail screen, passing the wallet object
+        GoRouter.of(context).pushNamed(
+          AppRouter.solanaWalletRoute, // Updated to use solanaWalletRoute
+          extra: wallet, // Pass the specific wallet
         );
       },
       child: Card(
