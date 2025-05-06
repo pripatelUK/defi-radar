@@ -3,7 +3,6 @@ import 'package:flutter_starter/core/privy_manager.dart';
 import 'package:go_router/go_router.dart';
 import 'package:privy_flutter/privy_flutter.dart';
 
-import 'package:flutter_starter/router/app_router.dart';
 import 'package:flutter_starter/features/authenticated/widgets/ethereum_wallets_widget.dart';
 import 'package:flutter_starter/features/authenticated/widgets/linked_accounts_widget.dart';
 import 'package:flutter_starter/features/authenticated/widgets/solana_wallets_widget.dart';
@@ -155,19 +154,13 @@ class _AuthenticatedScreenState extends State<AuthenticatedScreen> {
 
               const SizedBox(height: 16),
 
-              // Ethereum Wallets
-              GestureDetector(
-                onTap: () => context.go(AppRouter.walletPath),
-                child: EthereumWalletsWidget(user: _user),
-              ),
+              // Ethereum Wallets (Navigation handled inside widget)
+              EthereumWalletsWidget(user: _user),
 
               const SizedBox(height: 24),
 
-              // Solana Wallets
-              GestureDetector(
-                onTap: () => context.go(AppRouter.walletPath),
-                child: SolanaWalletsWidget(user: _user),
-              ),
+              // Solana Wallets (Navigation handled inside widget)
+              SolanaWalletsWidget(user: _user),
             ],
           ),
         ),
