@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_starter/config/env_config.dart';
 
 class DebankService {
   static const String _baseUrl = 'https://pro-openapi.debank.com/v1';
@@ -7,9 +8,10 @@ class DebankService {
   final String _chainId;
 
   DebankService({
-    required String accessToken,
+    String? accessToken,
     String chainId = 'eth',
-  }) : _accessToken = accessToken, _chainId = chainId;
+  }) : _accessToken = accessToken ?? EnvConfig.debankAccessToken, 
+       _chainId = chainId;
 
   /// Get user's complex tokens (DeFi protocol positions)
   Future<List<ProtocolData>> getUserComplexTokens(String walletAddress) async {
