@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_starter/core/app_colors.dart';
 import 'package:flutter_starter/router/app_router.dart';
 import 'package:go_router/go_router.dart';
 import 'package:privy_flutter/privy_flutter.dart';
@@ -11,70 +12,154 @@ class SolanaWalletsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (user.embeddedSolanaWallets.isEmpty) {
+      return _buildEmptyState(context);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Solana Wallets", style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 10),
-        if (user.embeddedSolanaWallets.isEmpty)
-          const Text("No Solana wallets", style: TextStyle(color: Colors.grey))
-        else
-          ...user.embeddedSolanaWallets.map(
-            (wallet) => _buildWalletTile(context, wallet),
-          ),
+        ...user.embeddedSolanaWallets.map(
+          (wallet) => _buildWalletTile(context, wallet),
+        ),
       ],
     );
   }
 
+  Widget _buildEmptyState(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.largeSpacing),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.currency_bitcoin_outlined,
+            size: 48,
+            color: AppColors.onSurfaceVariant,
+          ),
+          const SizedBox(height: AppSpacing.secondarySpacing),
+          Text(
+            "No Solana wallets",
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.tightSpacing),
+          Text(
+            "Create a Solana wallet to get started",
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildWalletTile(BuildContext context, EmbeddedSolanaWallet wallet) {
-    // Wrap in InkWell for navigation
-    return InkWell(
-      onTap: () {
-        // Navigate to the wallet detail screen, passing the wallet object
-        GoRouter.of(context).pushNamed(
-          AppRouter.solanaWalletRoute, // Updated to use solanaWalletRoute
-          extra: wallet, // Pass the specific wallet
-        );
-      },
-      child: Card(
-        margin: const EdgeInsets.only(bottom: 8),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.account_balance_wallet),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Solana Wallet",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ],
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.secondarySpacing),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
+          onTap: () {
+            GoRouter.of(context).pushNamed(
+              AppRouter.solanaWalletRoute,
+              extra: wallet,
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.mainSpacing),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
+              border: Border.all(
+                color: AppColors.onSurfaceVariant.withOpacity(0.1),
               ),
-              const SizedBox(height: 8),
-              Text(
-                "Address: ${_formatAddress(wallet.address)}",
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              if (wallet.chainId != null)
-                Text(
-                  "Chain ID: ${wallet.chainId}",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(AppSpacing.tightSpacing),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(AppRadius.smallRadius),
+                      ),
+                      child: Icon(
+                        Icons.currency_bitcoin,
+                        size: 20,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.secondarySpacing),
+                    Expanded(
+                      child: Text(
+                        "Solana Wallet",
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ],
                 ),
-              if (wallet.recoveryMethod != null)
-                Text(
-                  "Recovery Method: ${wallet.recoveryMethod}",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
-                ),
-              Text(
-                "HD Wallet Index: ${wallet.hdWalletIndex}",
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
-              ),
-            ],
+                const SizedBox(height: AppSpacing.secondarySpacing),
+                
+                _buildWalletDetail("Address", _formatAddress(wallet.address)),
+                
+                if (wallet.chainId != null)
+                  _buildWalletDetail("Chain ID", wallet.chainId!),
+                
+                if (wallet.recoveryMethod != null)
+                  _buildWalletDetail("Recovery Method", wallet.recoveryMethod!),
+                
+                _buildWalletDetail("HD Wallet Index", wallet.hdWalletIndex.toString()),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildWalletDetail(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.tightSpacing),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.secondarySpacing),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

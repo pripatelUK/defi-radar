@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_starter/core/privy_manager.dart';
+import 'package:flutter_starter/core/app_colors.dart';
 import 'package:go_router/go_router.dart';
 import 'package:privy_flutter/privy_flutter.dart';
 
@@ -41,14 +42,17 @@ class _AuthenticatedScreenState extends State<AuthenticatedScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
+        backgroundColor: isError ? AppColors.error : AppColors.success,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
+        ),
       ),
     );
   }
 
   // Create Ethereum wallet
   Future<void> _createEthereumWallet() async {
-
     setState(() {
       _isCreatingEthereumWallet = true;
     });
@@ -84,7 +88,6 @@ class _AuthenticatedScreenState extends State<AuthenticatedScreen> {
 
   // Create Solana wallet
   Future<void> _createSolanaWallet() async {
-    
     setState(() {
       _isCreatingSolanaWallet = true;
     });
@@ -137,91 +140,247 @@ class _AuthenticatedScreenState extends State<AuthenticatedScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Profile'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: _logout,
+            tooltip: 'Logout',
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(AppSpacing.mainSpacing),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Welcome message
+              _buildWelcomeCard(),
+              
+              const SizedBox(height: AppSpacing.mainSpacing),
+
               // User Profile Information
-              UserProfileWidget(user: _user),
-              const Divider(),
-              const SizedBox(height: 16),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.mainSpacing),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.person,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: AppSpacing.tightSpacing),
+                          Text(
+                            'Profile Information',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.mainSpacing),
+                      UserProfileWidget(user: _user),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: AppSpacing.mainSpacing),
 
               // Linked Accounts
-              LinkedAccountsWidget(user: _user),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.mainSpacing),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.link,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: AppSpacing.tightSpacing),
+                          Text(
+                            'Linked Accounts',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.mainSpacing),
+                      LinkedAccountsWidget(user: _user),
+                    ],
+                  ),
+                ),
+              ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.mainSpacing),
 
-              // Ethereum Wallets (Navigation handled inside widget)
-              EthereumWalletsWidget(user: _user),
+              // Ethereum Wallets
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.mainSpacing),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.account_balance_wallet,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: AppSpacing.tightSpacing),
+                          Text(
+                            'Ethereum Wallets',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.mainSpacing),
+                      EthereumWalletsWidget(user: _user),
+                    ],
+                  ),
+                ),
+              ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.mainSpacing),
 
-              // Solana Wallets (Navigation handled inside widget)
-              SolanaWalletsWidget(user: _user),
+              // Solana Wallets
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.mainSpacing),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.currency_bitcoin,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: AppSpacing.tightSpacing),
+                          Text(
+                            'Solana Wallets',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.mainSpacing),
+                      SolanaWalletsWidget(user: _user),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: AppSpacing.extraLargeSpacing),
             ],
           ),
         ),
       ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // Ethereum wallet creation button
-          FloatingActionButton.extended(
-            heroTag: "createEthereum",
-            onPressed:
-                (_isCreatingEthereumWallet || _isCreatingSolanaWallet)
-                    ? null
-                    : _createEthereumWallet,
-            icon:
-                _isCreatingEthereumWallet
-                    ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                    : null,
-            label: const Text('Create ETH Wallet'),
-            backgroundColor:
-                (_isCreatingEthereumWallet || _isCreatingSolanaWallet)
-                    ? Colors.grey
-                    : null,
-          ),
-          const SizedBox(height: 8),
-          // Solana wallet creation button
-          FloatingActionButton.extended(
-            heroTag: "createSolana",
-            onPressed:
-                (_isCreatingSolanaWallet || _isCreatingEthereumWallet)
-                    ? null
-                    : _createSolanaWallet,
-            icon:
-                _isCreatingSolanaWallet
-                    ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                    : null,
-            label: const Text('Create SOL Wallet'),
-            backgroundColor:
-                (_isCreatingSolanaWallet || _isCreatingEthereumWallet)
-                    ? Colors.grey
-                    : null,
-          ),
-          const SizedBox(height: 8),
-          FloatingActionButton.extended(
-            heroTag: "logout",
-            onPressed: _logout,
-            icon: const Icon(Icons.logout),
-            label: const Text('Logout'),
-            backgroundColor: Colors.redAccent,
-          ),
-        ],
+      floatingActionButton: _buildFloatingActionButtons(),
+    );
+  }
+
+  Widget _buildWelcomeCard() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.largeSpacing),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.secondarySpacing),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(AppRadius.cardRadius),
+              ),
+              child: Icon(
+                Icons.verified_user,
+                color: AppColors.primary,
+                size: 32,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.mainSpacing),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Welcome back!',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.tightSpacing),
+                  Text(
+                    'You are successfully authenticated. Manage your wallets and accounts below.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildFloatingActionButtons() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        // Ethereum wallet creation button
+        FloatingActionButton.extended(
+          heroTag: "createEthereum",
+          onPressed: (_isCreatingEthereumWallet || _isCreatingSolanaWallet)
+              ? null
+              : _createEthereumWallet,
+          backgroundColor: (_isCreatingEthereumWallet || _isCreatingSolanaWallet)
+              ? AppColors.onSurfaceVariant
+              : AppColors.primary,
+          foregroundColor: AppColors.onPrimary,
+          icon: _isCreatingEthereumWallet
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Icon(Icons.add),
+          label: const Text('Create ETH Wallet'),
+        ),
+        const SizedBox(height: AppSpacing.tightSpacing),
+        
+        // Solana wallet creation button
+        FloatingActionButton.extended(
+          heroTag: "createSolana",
+          onPressed: (_isCreatingSolanaWallet || _isCreatingEthereumWallet)
+              ? null
+              : _createSolanaWallet,
+          backgroundColor: (_isCreatingSolanaWallet || _isCreatingEthereumWallet)
+              ? AppColors.onSurfaceVariant
+              : AppColors.primary,
+          foregroundColor: AppColors.onPrimary,
+          icon: _isCreatingSolanaWallet
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Icon(Icons.add),
+          label: const Text('Create SOL Wallet'),
+        ),
+      ],
     );
   }
 }

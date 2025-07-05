@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_starter/core/app_colors.dart';
 import 'package:go_router/go_router.dart';
 import 'package:privy_flutter/privy_flutter.dart';
 
@@ -43,7 +44,14 @@ class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
     if (_latestSignature != null && _latestSignature!.isNotEmpty) {
       Clipboard.setData(ClipboardData(text: _latestSignature!));
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Signature copied to clipboard!')),
+        SnackBar(
+          content: const Text('Signature copied to clipboard!'),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
+          ),
+        ),
       );
     }
   }
@@ -56,9 +64,13 @@ class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
     // Check if message is empty.
     if (messageToSign.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter a message to sign."),
-          backgroundColor: Colors.orange,
+        SnackBar(
+          content: const Text("Please enter a message to sign."),
+          backgroundColor: AppColors.warning,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
+          ),
         ),
       );
       return;
@@ -77,7 +89,11 @@ class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("SOL Signature: $signature"),
-            backgroundColor: Colors.green,
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
+            ),
           ),
         );
       },
@@ -88,7 +104,11 @@ class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Error signing SOL message: ${error.message}"),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
+            ),
           ),
         );
       },
@@ -115,142 +135,249 @@ class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.account_balance_wallet, size: 28),
-                    const SizedBox(width: 12),
-                    Text(
-                      '$walletType Wallet',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                const Divider(),
-                const SizedBox(height: 20),
-                // Displays various details of the Solana wallet.
-                _buildDetailItem(context, 'Address', address),
-                if (chainId != null && chainId.isNotEmpty)
-                  _buildDetailItem(context, 'Chain ID', chainId),
-                if (recoveryMethod != null && recoveryMethod.isNotEmpty)
-                  _buildDetailItem(context, 'Recovery Method', recoveryMethod),
-                _buildDetailItem(
-                  context,
-                  'HD Wallet Index',
-                  hdWalletIndex.toString(),
-                ),
-                const SizedBox(height: 24),
-                TextField(
-                  controller: _messageController,
-                  decoration: const InputDecoration(
-                    labelText: 'Message to Sign',
-                    hintText: 'Enter the message here',
-                    border: OutlineInputBorder(),
-                  ),
-                  minLines: 1,
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.copy),
-                      label: const Text('Copy Wallet Address'),
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: address));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Address copied to clipboard!'),
+          padding: const EdgeInsets.all(AppSpacing.mainSpacing),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Wallet Header Card
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.largeSpacing),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(AppSpacing.secondarySpacing),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(AppRadius.cardRadius),
+                            ),
+                            child: Icon(
+                              Icons.currency_bitcoin,
+                              color: AppColors.primary,
+                              size: 32,
+                            ),
                           ),
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 12,
-                        ),
+                          const SizedBox(width: AppSpacing.mainSpacing),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '$walletType Wallet',
+                                  style: Theme.of(context).textTheme.headlineMedium,
+                                ),
+                                const SizedBox(height: AppSpacing.tightSpacing),
+                                Text(
+                                  'Manage your wallet and sign messages',
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.edit),
-                      label: const Text('Sign Message'),
-                      onPressed: _messageController.text.trim().isEmpty
-                          ? null
-                          : _signSolanaMessage, // Solana specific signing method
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 24),
-                // Displays the latest signature if available.
-                if (_latestSignature != null)
-                  Column(
+              ),
+
+              const SizedBox(height: AppSpacing.mainSpacing),
+
+              // Wallet Details Card
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.mainSpacing),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Divider(),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Latest Signature:',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 8),
-                      GestureDetector(
-                        onTap: _copySignatureToClipboard,
-                        child: Container(
-                          padding: const EdgeInsets.all(12.0),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(8.0),
-                            border: Border.all(color: Colors.grey[300]!),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: AppColors.primary,
+                            size: 20,
                           ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: SelectableText(
-                                  _latestSignature!,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                        fontFamily: 'monospace',
-                                      ),
+                          const SizedBox(width: AppSpacing.tightSpacing),
+                          Text(
+                            'Wallet Details',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.mainSpacing),
+                      
+                      // Wallet details
+                      _buildDetailItem(context, 'Address', address),
+                      if (chainId != null && chainId.isNotEmpty)
+                        _buildDetailItem(context, 'Chain ID', chainId),
+                      if (recoveryMethod != null && recoveryMethod.isNotEmpty)
+                        _buildDetailItem(context, 'Recovery Method', recoveryMethod),
+                      _buildDetailItem(
+                        context,
+                        'HD Wallet Index',
+                        hdWalletIndex.toString(),
+                      ),
+                      
+                      const SizedBox(height: AppSpacing.mainSpacing),
+                      
+                      // Copy Address Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.copy),
+                          label: const Text('Copy Wallet Address'),
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(text: address));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text('Address copied to clipboard!'),
+                                backgroundColor: AppColors.success,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Icon(
-                                Icons.copy,
-                                size: 18,
-                                color: Colors.grey[600],
-                              ),
-                            ],
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.mainSpacing,
+                              vertical: AppSpacing.secondarySpacing,
+                            ),
+                            side: BorderSide(color: AppColors.primary),
+                            foregroundColor: AppColors.primary,
                           ),
                         ),
                       ),
                     ],
                   ),
-                const SizedBox(height: 24),
+                ),
+              ),
+
+              const SizedBox(height: AppSpacing.mainSpacing),
+
+              // Message Signing Card
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.mainSpacing),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.edit_note,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: AppSpacing.tightSpacing),
+                          Text(
+                            'Message Signing',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.mainSpacing),
+                      
+                      TextField(
+                        controller: _messageController,
+                        decoration: InputDecoration(
+                          labelText: 'Message to Sign',
+                          hintText: 'Enter the message here',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
+                            borderSide: BorderSide(color: AppColors.primary),
+                          ),
+                        ),
+                        minLines: 1,
+                        maxLines: 3,
+                      ),
+                      const SizedBox(height: AppSpacing.mainSpacing),
+                      
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.edit),
+                          label: const Text('Sign Message'),
+                          onPressed: _messageController.text.trim().isEmpty
+                              ? null
+                              : _signSolanaMessage,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Latest Signature Card
+              if (_latestSignature != null) ...[
+                const SizedBox(height: AppSpacing.mainSpacing),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.mainSpacing),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.verified,
+                              color: AppColors.success,
+                              size: 20,
+                            ),
+                            const SizedBox(width: AppSpacing.tightSpacing),
+                            Text(
+                              'Latest Signature',
+                              style: Theme.of(context).textTheme.headlineMedium,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.mainSpacing),
+                        
+                        GestureDetector(
+                          onTap: _copySignatureToClipboard,
+                          child: Container(
+                            padding: const EdgeInsets.all(AppSpacing.secondarySpacing),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceVariant,
+                              borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
+                              border: Border.all(color: AppColors.onSurfaceVariant.withOpacity(0.3)),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: SelectableText(
+                                    _latestSignature!,
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontFamily: 'monospace',
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.tightSpacing),
+                                Icon(
+                                  Icons.copy,
+                                  size: 18,
+                                  color: AppColors.onSurfaceVariant,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
-            ),
+
+              const SizedBox(height: AppSpacing.extraLargeSpacing),
+            ],
           ),
         ),
       ),
@@ -260,19 +387,21 @@ class _SolanaWalletScreenState extends State<SolanaWalletScreen> {
   // Helper widget to build a display item for wallet details (label and value).
   Widget _buildDetailItem(BuildContext context, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.tightSpacing),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[700],
-                ),
+              color: AppColors.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 4),
-          SelectableText(value, style: Theme.of(context).textTheme.bodyLarge),
+          SelectableText(
+            value,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
         ],
       ),
     );
