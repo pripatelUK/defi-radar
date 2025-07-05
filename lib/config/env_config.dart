@@ -8,4 +8,6 @@ class EnvConfig {
   /// The Privy Client ID from environment variables
   static String get privyClientId => dotenv.env['PRIVY_CLIENT_ID'] ?? '';
   
+  /// The Privy App Secret from environment variables (for API authentication)
+  static String get privyAppSecret => dotenv.env['PRIVY_APP_SECRET'] ?? '';
 }
