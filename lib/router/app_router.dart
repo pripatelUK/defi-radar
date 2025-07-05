@@ -5,6 +5,7 @@ import 'package:flutter_starter/features/email_authentication/email_authenticati
 import 'package:flutter_starter/features/home/home_screen.dart';
 import 'package:flutter_starter/features/wallet/eth_wallet_screen.dart';
 import 'package:flutter_starter/features/wallet/solana_wallet_screen.dart';
+import 'package:flutter_starter/core/bottom_navbar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:privy_flutter/privy_flutter.dart';
 
@@ -24,6 +25,7 @@ class AppRouter {
   static const String emailAuthRoute = 'email-auth';
   static const String ethWalletRoute = 'eth-wallet';
   static const String solanaWalletRoute = 'solana-wallet';
+  static const String mainNavRoute = 'main-nav';
 
   // Route path constants
   static const String homePath = '/';
@@ -31,17 +33,24 @@ class AppRouter {
   static const String authenticatedPath = '/profile';
   static const String ethWalletPath = '/eth-wallet';
   static const String solanaWalletPath = '/solana-wallet';
+  static const String mainNavPath = '/main';
 
   // GoRouter configuration
   late final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
-    initialLocation: homePath,
+    initialLocation: mainNavPath, // Start with bottom navigation
     routes: [
-      // Main routes
+      // Main navigation with bottom tabs (primary route)
+      GoRoute(
+        path: mainNavPath,
+        name: mainNavRoute,
+        builder: (context, state) => const BottomNavBar(),
+      ),
+      // Redirect home path to main navigation
       GoRoute(
         path: homePath,
         name: homeRoute,
-        builder: (context, state) => const HomeScreen(),
+        redirect: (context, state) => mainNavPath,
       ),
       GoRoute(
         path: authenticatedPath,

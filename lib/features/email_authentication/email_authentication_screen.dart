@@ -125,9 +125,9 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
           });
           showMessage("Authentication successful!");
 
-          // Navigate to authenticated screen
+          // Navigate to main navigation with bottom tabs
           if (mounted) {
-            context.go(AppRouter.authenticatedPath);
+            context.go(AppRouter.mainNavPath);
           }
         },
         // Failure handler - authentication failed
@@ -158,7 +158,7 @@ class EmailAuthenticationScreenState extends State<EmailAuthenticationScreen> {
         title: const Text('Email Authentication'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: () => context.go(AppRouter.mainNavPath),
         ),
       ),
       body: SafeArea(

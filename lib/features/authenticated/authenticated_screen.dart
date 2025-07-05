@@ -8,6 +8,7 @@ import 'package:flutter_starter/features/authenticated/widgets/ethereum_wallets_
 import 'package:flutter_starter/features/authenticated/widgets/linked_accounts_widget.dart';
 import 'package:flutter_starter/features/authenticated/widgets/solana_wallets_widget.dart';
 import 'package:flutter_starter/features/authenticated/widgets/user_profile_widget.dart';
+import 'package:flutter_starter/core/app_router.dart';
 
 class AuthenticatedScreen extends StatefulWidget {
   const AuthenticatedScreen({super.key});
@@ -127,8 +128,8 @@ class _AuthenticatedScreenState extends State<AuthenticatedScreen> {
       await _privyManager.privy.logout();
 
       if (mounted) {
-        // Navigate back to home after logout
-        context.go('/');
+        // Navigate back to main navigation after logout
+        context.go(AppRouter.mainNavPath);
       }
     } catch (e) {
       _showMessage("Logout error: $e", isError: true);

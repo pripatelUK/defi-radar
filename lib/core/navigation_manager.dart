@@ -9,23 +9,28 @@ class NavigationManager {
   factory NavigationManager() => _instance;
   NavigationManager._internal();
 
-  /// Navigate to authenticated screen
-  void navigateToAuthenticatedScreen(BuildContext context) {
+  /// Navigate to main navigation screen with bottom tabs
+  void navigateToMainNavigation(BuildContext context) {
     if (!_isValidContext(context)) return;
     
     final router = GoRouter.of(context);
     final currentPath = router.routeInformationProvider.value.uri.path;
 
-    // Only navigate if not already on the authenticated path
-    if (currentPath != AppRouter.authenticatedPath) {
-      debugPrint('Navigating to authenticated screen');
+    // Only navigate if not already on the main navigation path
+    if (currentPath != AppRouter.mainNavPath) {
+      debugPrint('Navigating to main navigation screen');
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        router.go(AppRouter.authenticatedPath);
+        router.go(AppRouter.mainNavPath);
       });
     } else {
-      debugPrint('Already on authenticated path, skipping navigation');
+      debugPrint('Already on main navigation path, skipping navigation');
     }
+  }
+
+  /// Navigate to authenticated screen (legacy method, now redirects to main nav)
+  void navigateToAuthenticatedScreen(BuildContext context) {
+    navigateToMainNavigation(context);
   }
   
   /// Check if context is valid for navigation

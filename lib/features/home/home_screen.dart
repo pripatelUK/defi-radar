@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_starter/core/navigation_manager.dart';
 import 'package:flutter_starter/core/privy_manager.dart';
 import 'package:flutter_starter/core/app_colors.dart';
 import 'package:flutter_starter/router/app_router.dart';
@@ -16,6 +15,7 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   bool _isPrivyReady = false;
+  PrivyUser? _user;
   StreamSubscription<AuthState>? _authSubscription;
 
   @override
@@ -36,11 +36,29 @@ class HomeScreenState extends State<HomeScreen> {
         setState(() {
           _isPrivyReady = true;
         });
-        // Set up the auth listener directly in the HomeScreen
+        
+        // Load user data if authenticated
+        _loadUserData();
+        
+        // Set up the auth listener
         _setupAuthListener();
       }
     } catch (e) {
       debugPrint("Error initializing Privy: $e");
+    }
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      // Access the user property directly from Privy
+      final user = privyManager.privy.user;
+      if (mounted) {
+        setState(() {
+          _user = user;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading user data: $e');
     }
   }
 
@@ -55,8 +73,11 @@ class HomeScreenState extends State<HomeScreen> {
       
       if (state is Authenticated && mounted) {
         debugPrint('User authenticated: ${state.user.id}');
-        // Navigate to authenticated screen
-        navigationManager.navigateToAuthenticatedScreen(context);
+        _loadUserData();
+      } else if (state is Unauthenticated && mounted) {
+        setState(() {
+          _user = null;
+        });
       }
     });
   }
@@ -73,7 +94,15 @@ class HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text("Welcome to Privy"),
+        title: const Text("Home"),
+        actions: [
+          if (_user != null)
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: _logout,
+              tooltip: 'Logout',
+            ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -86,7 +115,7 @@ class HomeScreenState extends State<HomeScreen> {
               
               const SizedBox(height: AppSpacing.largeSpacing),
               
-              // Main content based on Privy ready state
+              // Main content based on authentication state
               _isPrivyReady ? _buildMainContent(context) : _buildLoadingContent(context),
             ],
           ),
@@ -115,7 +144,7 @@ class HomeScreenState extends State<HomeScreen> {
             
             // Welcome title
             Text(
-              "Privy Starter Repo",
+              _user != null ? "Welcome back!" : "Welcome to Privy",
               style: Theme.of(context).textTheme.headlineLarge,
               textAlign: TextAlign.center,
             ),
@@ -123,7 +152,9 @@ class HomeScreenState extends State<HomeScreen> {
             
             // Subtitle
             Text(
-              "Your gateway to decentralized authentication",
+              _user != null 
+                ? "Your dashboard is ready to use"
+                : "Get started with secure authentication",
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.onSurfaceVariant,
               ),
@@ -136,6 +167,14 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildMainContent(BuildContext context) {
+    if (_user == null) {
+      return _buildAuthenticationContent(context);
+    } else {
+      return _buildUserDashboard(context);
+    }
+  }
+
+  Widget _buildAuthenticationContent(BuildContext context) {
     return Column(
       children: [
         // Authentication section
@@ -214,9 +253,96 @@ class HomeScreenState extends State<HomeScreen> {
                 
                 _buildFeatureItem(
                   context,
-                  Icons.speed,
-                  "Fast & Reliable",
-                  "Quick setup and seamless user experience",
+                  Icons.business,
+                  "Company Management",
+                  "Team collaboration and project management",
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUserDashboard(BuildContext context) {
+    return Column(
+      children: [
+        // User Profile Card
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.largeSpacing),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.secondarySpacing),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(AppRadius.cardRadius),
+                  ),
+                  child: Icon(
+                    Icons.verified_user,
+                    color: AppColors.primary,
+                    size: 32,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.mainSpacing),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Welcome back!',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.tightSpacing),
+                      Text(
+                        'User ID: ${_user?.id.substring(0, 8)}...',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        const SizedBox(height: AppSpacing.mainSpacing),
+
+        // Quick Actions
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.mainSpacing),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Quick Actions",
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: AppSpacing.mainSpacing),
+                
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => context.go(AppRouter.authenticatedPath),
+                        icon: const Icon(Icons.person),
+                        label: const Text('View Profile'),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.secondarySpacing),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => _showWalletInfo(context),
+                        icon: const Icon(Icons.wallet),
+                        label: const Text('Wallet Info'),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -296,5 +422,49 @@ class HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  void _showWalletInfo(BuildContext context) {
+    final ethWallets = _user?.embeddedEthereumWallets ?? [];
+    final solWallets = _user?.embeddedSolanaWallets ?? [];
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Wallet Information'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Ethereum Wallets: ${ethWallets.length}'),
+            Text('Solana Wallets: ${solWallets.length}'),
+            const SizedBox(height: AppSpacing.mainSpacing),
+            Text(
+              'Visit the Wallets tab to manage your wallets and view DeFi positions.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _logout() async {
+    try {
+      await privyManager.privy.logout();
+      setState(() {
+        _user = null;
+      });
+    } catch (e) {
+      debugPrint('Error logging out: $e');
+    }
   }
 }
