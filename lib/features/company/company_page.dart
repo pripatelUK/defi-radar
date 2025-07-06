@@ -1,8 +1,77 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_starter/core/app_colors.dart';
 
-class CompanyPage extends StatelessWidget {
+class CompanyPage extends StatefulWidget {
   const CompanyPage({super.key});
+
+  @override
+  State<CompanyPage> createState() => _CompanyPageState();
+}
+
+class _CompanyPageState extends State<CompanyPage> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _nationalityController = TextEditingController();
+  final TextEditingController _salaryController = TextEditingController();
+
+  // Sample team members data
+  final List<Map<String, dynamic>> _teamMembers = [
+    {
+      'name': 'Sarah Johnson',
+      'role': 'CEO & Founder',
+      'nationality': 'United States',
+      'salary': '15,000',
+      'icon': Icons.person,
+      'color': AppColors.primary,
+    },
+    {
+      'name': 'Mike Chen',
+      'role': 'CTO',
+      'nationality': 'Canada',
+      'salary': '12,500',
+      'icon': Icons.code,
+      'color': AppColors.aiBlue,
+    },
+    {
+      'name': 'Emily Davis',
+      'role': 'Head of Marketing',
+      'nationality': 'United Kingdom',
+      'salary': '10,800',
+      'icon': Icons.campaign,
+      'color': AppColors.artPurple,
+    },
+    {
+      'name': 'Alex Rodriguez',
+      'role': 'Lead Developer',
+      'nationality': 'Spain',
+      'salary': '9,500',
+      'icon': Icons.computer,
+      'color': AppColors.blockchainOrange,
+    },
+    {
+      'name': 'Lisa Wong',
+      'role': 'Product Manager',
+      'nationality': 'Singapore',
+      'salary': '11,200',
+      'icon': Icons.inventory,
+      'color': AppColors.climateGreen,
+    },
+    {
+      'name': 'David Miller',
+      'role': 'Designer',
+      'nationality': 'Australia',
+      'salary': '8,800',
+      'icon': Icons.palette,
+      'color': AppColors.warning,
+    },
+  ];
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _nationalityController.dispose();
+    _salaryController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +99,13 @@ class CompanyPage extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.mainSpacing),
                       Text(
-                        'Company Dashboard',
+                        'Team Management',
                         style: Theme.of(context).textTheme.headlineLarge,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: AppSpacing.tightSpacing),
                       Text(
-                        'Manage your business operations and analytics',
+                        'Manage your team members and business operations',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.onSurfaceVariant,
                         ),
@@ -65,7 +134,7 @@ class CompanyPage extends StatelessWidget {
                           ),
                           const SizedBox(width: AppSpacing.tightSpacing),
                           Text(
-                            'Business Analytics',
+                            'Team Overview',
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
                         ],
@@ -78,20 +147,20 @@ class CompanyPage extends StatelessWidget {
                           Expanded(
                             child: _buildMetricCard(
                               context,
-                              'Revenue',
-                              '\$125,000',
-                              Icons.monetization_on,
-                              AppColors.success,
+                              'Team Size',
+                              '${_teamMembers.length}',
+                              Icons.people,
+                              AppColors.primary,
                             ),
                           ),
                           const SizedBox(width: AppSpacing.secondarySpacing),
                           Expanded(
                             child: _buildMetricCard(
                               context,
-                              'Users',
-                              '1,234',
-                              Icons.people,
-                              AppColors.primary,
+                              'Monthly Payroll',
+                              '\$${_calculateTotalPayroll()}',
+                              Icons.monetization_on,
+                              AppColors.success,
                             ),
                           ),
                         ],
@@ -102,20 +171,20 @@ class CompanyPage extends StatelessWidget {
                           Expanded(
                             child: _buildMetricCard(
                               context,
-                              'Growth',
-                              '+23%',
+                              'Avg Salary',
+                              '\$${_calculateAverageSalary()}',
                               Icons.trending_up,
-                              AppColors.success,
+                              AppColors.warning,
                             ),
                           ),
                           const SizedBox(width: AppSpacing.secondarySpacing),
                           Expanded(
                             child: _buildMetricCard(
                               context,
-                              'Conversions',
-                              '456',
-                              Icons.swap_horiz,
-                              AppColors.warning,
+                              'Countries',
+                              '${_getUniqueCountries()}',
+                              Icons.public,
+                              AppColors.info,
                             ),
                           ),
                         ],
@@ -127,7 +196,7 @@ class CompanyPage extends StatelessWidget {
 
               const SizedBox(height: AppSpacing.mainSpacing),
 
-              // Team Management Card
+              // Team Management Section
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.mainSpacing),
@@ -135,106 +204,46 @@ class CompanyPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(
-                            Icons.group,
-                            color: AppColors.primary,
-                            size: 20,
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.group,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
+                              const SizedBox(width: AppSpacing.tightSpacing),
+                              Text(
+                                'Team Members',
+                                style: Theme.of(context).textTheme.headlineMedium,
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: AppSpacing.tightSpacing),
-                          Text(
-                            'Team Management',
-                            style: Theme.of(context).textTheme.headlineMedium,
+                          ElevatedButton.icon(
+                            onPressed: _showAddTeamMemberDialog,
+                            icon: const Icon(Icons.person_add),
+                            label: const Text('Add Member'),
                           ),
                         ],
                       ),
-                      const SizedBox(height: AppSpacing.mainSpacing),
+                      const SizedBox(height: AppSpacing.largeSpacing),
                       
-                      _buildTeamMember(
-                        context,
-                        'Sarah Johnson',
-                        'CEO & Founder',
-                        Icons.person,
-                        AppColors.primary,
-                      ),
-                      const SizedBox(height: AppSpacing.tightSpacing),
-                      _buildTeamMember(
-                        context,
-                        'Mike Chen',
-                        'CTO',
-                        Icons.code,
-                        AppColors.aiBlue,
-                      ),
-                      const SizedBox(height: AppSpacing.tightSpacing),
-                      _buildTeamMember(
-                        context,
-                        'Emily Davis',
-                        'Head of Marketing',
-                        Icons.campaign,
-                        AppColors.artPurple,
-                      ),
-                      
-                      const SizedBox(height: AppSpacing.mainSpacing),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: () => _showAddTeamMemberDialog(context),
-                          icon: const Icon(Icons.person_add),
-                          label: const Text('Add Team Member'),
+                      // Team Member Cards Grid
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: AppSpacing.secondarySpacing,
+                          mainAxisSpacing: AppSpacing.secondarySpacing,
+                          childAspectRatio: 0.85,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: AppSpacing.mainSpacing),
-
-              // Projects Card
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.mainSpacing),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.work,
-                            color: AppColors.primary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: AppSpacing.tightSpacing),
-                          Text(
-                            'Active Projects',
-                            style: Theme.of(context).textTheme.headlineMedium,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.mainSpacing),
-                      
-                      _buildProjectItem(
-                        context,
-                        'Mobile App Redesign',
-                        'In Progress',
-                        0.75,
-                        AppColors.primary,
-                      ),
-                      const SizedBox(height: AppSpacing.tightSpacing),
-                      _buildProjectItem(
-                        context,
-                        'API Integration',
-                        'Review',
-                        0.90,
-                        AppColors.warning,
-                      ),
-                      const SizedBox(height: AppSpacing.tightSpacing),
-                      _buildProjectItem(
-                        context,
-                        'Security Audit',
-                        'Planning',
-                        0.25,
-                        AppColors.error,
+                        itemCount: _teamMembers.length,
+                        itemBuilder: (context, index) {
+                          final member = _teamMembers[index];
+                          return _buildTeamMemberCard(context, member);
+                        },
                       ),
                     ],
                   ),
@@ -259,7 +268,7 @@ class CompanyPage extends StatelessWidget {
                           ),
                           const SizedBox(width: AppSpacing.tightSpacing),
                           Text(
-                            'Quick Actions',
+                            'Team Actions',
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
                         ],
@@ -270,17 +279,17 @@ class CompanyPage extends StatelessWidget {
                         children: [
                           Expanded(
                             child: ElevatedButton.icon(
-                              onPressed: () => _showComingSoonDialog(context, 'Generate Report'),
-                              icon: const Icon(Icons.assessment),
-                              label: const Text('Generate Report'),
+                              onPressed: () => _showComingSoonDialog(context, 'Process Payroll'),
+                              icon: const Icon(Icons.account_balance_wallet),
+                              label: const Text('Process Payroll'),
                             ),
                           ),
                           const SizedBox(width: AppSpacing.tightSpacing),
                           Expanded(
                             child: ElevatedButton.icon(
-                              onPressed: () => _showComingSoonDialog(context, 'Schedule Meeting'),
-                              icon: const Icon(Icons.calendar_today),
-                              label: const Text('Schedule Meeting'),
+                              onPressed: () => _showComingSoonDialog(context, 'Generate Report'),
+                              icon: const Icon(Icons.assessment),
+                              label: const Text('Team Report'),
                             ),
                           ),
                         ],
@@ -330,131 +339,187 @@ class CompanyPage extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppColors.onSurfaceVariant,
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTeamMember(
-    BuildContext context,
-    String name,
-    String role,
-    IconData icon,
-    Color color,
-  ) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(AppSpacing.tightSpacing),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
-          ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 20,
-          ),
-        ),
-        const SizedBox(width: AppSpacing.secondarySpacing),
-        Expanded(
+  Widget _buildTeamMemberCard(BuildContext context, Map<String, dynamic> member) {
+    return Card(
+      elevation: 2,
+      child: InkWell(
+        onTap: () => _showTeamMemberDetails(context, member),
+        borderRadius: BorderRadius.circular(AppRadius.cardRadius),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.mainSpacing),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                name,
-                style: Theme.of(context).textTheme.titleLarge,
+              // Avatar
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: member['color'].withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  member['icon'],
+                  color: member['color'],
+                  size: 30,
+                ),
               ),
+              const SizedBox(height: AppSpacing.secondarySpacing),
+              
+              // Name
               Text(
-                role,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                member['name'],
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: AppSpacing.tightSpacing),
+              
+              // Role
+              Text(
+                member['role'],
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: AppSpacing.tightSpacing),
+              
+              // Salary
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.tightSpacing,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '\$${member['salary']} USDC',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.success,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
           ),
         ),
-        IconButton(
-          icon: const Icon(Icons.more_vert),
-          onPressed: () => _showTeamMemberOptions(context, name),
-        ),
-      ],
+      ),
     );
   }
 
-  Widget _buildProjectItem(
-    BuildContext context,
-    String name,
-    String status,
-    double progress,
-    Color color,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  void _showTeamMemberDetails(BuildContext context, Map<String, dynamic> member) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(member['name']),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              name,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            Text(
-              status,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            _buildDetailRow('Role', member['role']),
+            _buildDetailRow('Nationality', member['nationality']),
+            _buildDetailRow('Monthly Salary', '\$${member['salary']} USDC'),
           ],
         ),
-        const SizedBox(height: AppSpacing.tightSpacing),
-        LinearProgressIndicator(
-          value: progress,
-          backgroundColor: color.withOpacity(0.2),
-          valueColor: AlwaysStoppedAnimation<Color>(color),
-        ),
-        const SizedBox(height: AppSpacing.tightSpacing),
-        Text(
-          '${(progress * 100).toInt()}% Complete',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppColors.onSurfaceVariant,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
           ),
-        ),
-      ],
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              final memberIndex = _teamMembers.indexOf(member);
+              _showTeamMemberOptions(context, member['name'], memberIndex);
+            },
+            child: const Text('Manage'),
+          ),
+        ],
+      ),
     );
   }
 
-  void _showAddTeamMemberDialog(BuildContext context) {
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.tightSpacing),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 80,
+            child: Text(
+              '$label:',
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
+          Expanded(
+            child: Text(value),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddTeamMemberDialog() {
+    // Clear controllers
+    _nameController.clear();
+    _nationalityController.clear();
+    _salaryController.clear();
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Add Team Member'),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Full Name',
-                border: OutlineInputBorder(),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Full Name',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person),
+                ),
               ),
-            ),
-            SizedBox(height: AppSpacing.mainSpacing),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Role/Position',
-                border: OutlineInputBorder(),
+              const SizedBox(height: AppSpacing.mainSpacing),
+              TextField(
+                controller: _nationalityController,
+                decoration: const InputDecoration(
+                  labelText: 'Nationality',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.flag),
+                ),
               ),
-            ),
-            SizedBox(height: AppSpacing.mainSpacing),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
+              const SizedBox(height: AppSpacing.mainSpacing),
+              TextField(
+                controller: _salaryController,
+                decoration: const InputDecoration(
+                  labelText: 'Monthly Salary (USDC)',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.monetization_on),
+                  hintText: 'e.g. 5000',
+                ),
+                keyboardType: TextInputType.number,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -463,22 +528,41 @@ class CompanyPage extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Team member invitation sent!'),
-                  backgroundColor: AppColors.success,
-                ),
-              );
+              if (_nameController.text.isNotEmpty &&
+                  _nationalityController.text.isNotEmpty &&
+                  _salaryController.text.isNotEmpty) {
+                _addTeamMember();
+                Navigator.of(context).pop();
+              }
             },
-            child: const Text('Send Invitation'),
+            child: const Text('Add Member'),
           ),
         ],
       ),
     );
   }
 
-  void _showTeamMemberOptions(BuildContext context, String memberName) {
+  void _addTeamMember() {
+    setState(() {
+      _teamMembers.add({
+        'name': _nameController.text,
+        'role': 'Team Member',
+        'nationality': _nationalityController.text,
+        'salary': _salaryController.text,
+        'icon': Icons.person,
+        'color': AppColors.primary,
+      });
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${_nameController.text} added to the team!'),
+        backgroundColor: AppColors.success,
+      ),
+    );
+  }
+
+  void _showTeamMemberOptions(BuildContext context, String memberName, int memberIndex) {
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
@@ -495,21 +579,130 @@ class CompanyPage extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.edit),
-              title: const Text('Edit Profile'),
+              title: const Text('Edit Details'),
               onTap: () {
                 Navigator.pop(context);
-                _showComingSoonDialog(context, 'Edit Profile');
+                _showComingSoonDialog(context, 'Edit Details');
               },
             ),
             ListTile(
-              leading: const Icon(Icons.remove_circle_outline),
-              title: const Text('Remove from Team'),
+              leading: const Icon(Icons.remove_circle_outline, color: AppColors.error),
+              title: const Text('Remove from Team', style: TextStyle(color: AppColors.error)),
               onTap: () {
                 Navigator.pop(context);
-                _showComingSoonDialog(context, 'Remove from Team');
+                _showRemoveConfirmationDialog(context, memberName, memberIndex);
               },
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showRemoveConfirmationDialog(BuildContext context, String memberName, int memberIndex) {
+    // Safety check: Don't allow removing the last team member
+    if (_teamMembers.length <= 1) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Cannot Remove'),
+          content: const Text('You cannot remove the last team member. Add more members before removing this one.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    final member = _teamMembers[memberIndex];
+    final isFounder = member['role'].toString().toLowerCase().contains('founder') || 
+                     member['role'].toString().toLowerCase().contains('ceo');
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove Team Member'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Are you sure you want to remove $memberName from the team?'),
+            const SizedBox(height: AppSpacing.tightSpacing),
+            if (isFounder) ...[
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.secondarySpacing),
+                decoration: BoxDecoration(
+                  color: AppColors.warning.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.warning, color: AppColors.warning, size: 16),
+                    const SizedBox(width: AppSpacing.tightSpacing),
+                    Expanded(
+                      child: Text(
+                        'Warning: This person is a founder/CEO',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.warning,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.tightSpacing),
+            ],
+            Text(
+              'This action cannot be undone.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.onSurfaceVariant,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _removeTeamMember(memberIndex, memberName);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _removeTeamMember(int memberIndex, String memberName) {
+    setState(() {
+      _teamMembers.removeAt(memberIndex);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$memberName has been removed from the team'),
+        backgroundColor: AppColors.error,
+        action: SnackBarAction(
+          label: 'Undo',
+          textColor: Colors.white,
+          onPressed: () {
+            // Note: In a real app, you'd implement proper undo functionality
+            _showComingSoonDialog(context, 'Undo Remove');
+          },
         ),
       ),
     );
@@ -529,5 +722,34 @@ class CompanyPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _calculateTotalPayroll() {
+    final total = _teamMembers.fold<double>(
+      0.0,
+      (sum, member) => sum + double.tryParse(member['salary'].replaceAll(',', ''))!,
+    );
+    return total.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
+  }
+
+  String _calculateAverageSalary() {
+    if (_teamMembers.isEmpty) return '0';
+    final total = _teamMembers.fold<double>(
+      0.0,
+      (sum, member) => sum + double.tryParse(member['salary'].replaceAll(',', ''))!,
+    );
+    final average = total / _teamMembers.length;
+    return average.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
+  }
+
+  int _getUniqueCountries() {
+    final countries = _teamMembers.map((member) => member['nationality']).toSet();
+    return countries.length;
   }
 } 

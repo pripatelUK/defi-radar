@@ -127,7 +127,7 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _buildWelcomeSection(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.largeSpacing),
+        padding: const EdgeInsets.all(AppSpacing.tightSpacing),
         child: Column(
           children: [
             // Privy Logo
@@ -144,7 +144,7 @@ class HomeScreenState extends State<HomeScreen> {
             
             // Welcome title
             Text(
-              _user != null ? "Welcome back!" : "Welcome to Privy",
+              _user != null ? "Safe Salary" : "Welcome to Safe Salary",
               style: Theme.of(context).textTheme.headlineLarge,
               textAlign: TextAlign.center,
             ),
@@ -153,8 +153,8 @@ class HomeScreenState extends State<HomeScreen> {
             // Subtitle
             Text(
               _user != null 
-                ? "Your dashboard is ready to use"
-                : "Get started with secure authentication",
+                ? "Manage your teams salary"
+                : "Get started with secure salary management",
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.onSurfaceVariant,
               ),
@@ -190,19 +190,19 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: AppSpacing.mainSpacing),
                 
-                Text(
-                  "Secure Authentication",
-                  style: Theme.of(context).textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSpacing.tightSpacing),
+                // Text(
+                //   "Secure Authentication",
+                //   style: Theme.of(context).textTheme.headlineMedium,
+                //   textAlign: TextAlign.center,
+                // ),
+                // const SizedBox(height: AppSpacing.tightSpacing),
                 
-                Text(
-                  "Get started with secure, decentralized authentication using Privy's cutting-edge technology.",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSpacing.largeSpacing),
+                // Text(
+                //   "Get started with secure, decentralized authentication using Privy's cutting-edge technology.",
+                //   style: Theme.of(context).textTheme.bodyMedium,
+                //   textAlign: TextAlign.center,
+                // ),
+                // const SizedBox(height: AppSpacing.largeSpacing),
                 
                 // Login button
                 SizedBox(
@@ -220,7 +220,7 @@ class HomeScreenState extends State<HomeScreen> {
           ),
         ),
         
-        const SizedBox(height: AppSpacing.mainSpacing),
+        // const SizedBox(height: AppSpacing.mainSpacing),
         
         // Features section
         Card(
