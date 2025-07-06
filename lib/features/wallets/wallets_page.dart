@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_starter/core/app_colors.dart';
 import 'package:flutter_starter/core/privy_manager.dart';
-import 'package:flutter_starter/core/debank_service.dart';
 import 'package:privy_flutter/privy_flutter.dart';
 
 class WalletsPage extends StatefulWidget {
@@ -13,8 +12,6 @@ class WalletsPage extends StatefulWidget {
 
 class _WalletsPageState extends State<WalletsPage> {
   PrivyUser? _user;
-  final DebankService _debankService = DebankService();
-  bool _isLoading = false;
 
   @override
   void initState() {
@@ -157,59 +154,7 @@ class _WalletsPageState extends State<WalletsPage> {
                 const SizedBox(height: AppSpacing.mainSpacing),
               ],
 
-              // DeFi Positions Section
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.mainSpacing),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.trending_up,
-                            color: AppColors.primary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: AppSpacing.tightSpacing),
-                          Text(
-                            'DeFi Positions',
-                            style: Theme.of(context).textTheme.headlineMedium,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.mainSpacing),
-                      Text(
-                        'View your decentralized finance positions and protocol interactions',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.mainSpacing),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _isLoading ? null : _loadDefiPositions,
-                          icon: _isLoading
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : const Icon(Icons.analytics),
-                          label: Text(_isLoading ? 'Loading...' : 'View DeFi Positions'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
               // Create Wallet Actions
-              const SizedBox(height: AppSpacing.mainSpacing),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.mainSpacing),
@@ -321,86 +266,6 @@ class _WalletsPageState extends State<WalletsPage> {
               ),
             ),
           ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _loadDefiPositions() async {
-    if (_user?.embeddedEthereumWallets.isEmpty ?? true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No Ethereum wallets found. Please create a wallet first.'),
-        ),
-      );
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final firstWallet = _user!.embeddedEthereumWallets.first;
-      final positions = await _debankService.getProtocolPositions(firstWallet.address);
-      
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        
-        // Show positions dialog
-        _showDefiPositionsDialog(context, positions);
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error loading DeFi positions: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    }
-  }
-
-  void _showDefiPositionsDialog(BuildContext context, ProtocolPositionsResponse positions) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('DeFi Positions'),
-        content: SizedBox(
-          width: double.maxFinite,
-          height: 300,
-          child: positions.positions.isEmpty
-              ? const Center(child: Text('No DeFi positions found'))
-              : ListView.builder(
-                  itemCount: positions.positions.length,
-                  itemBuilder: (context, index) {
-                    final position = positions.positions[index];
-                    return ListTile(
-                      title: Text(position.name),
-                      subtitle: Text(position.protocol.name),
-                      trailing: Text(
-                        '${position.allocationPercentage.toStringAsFixed(1)}%',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    );
-                  },
-                ),
         ),
         actions: [
           TextButton(

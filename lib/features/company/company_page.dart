@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_starter/core/app_colors.dart';
 
 class CompanyPage extends StatefulWidget {
@@ -13,13 +14,14 @@ class _CompanyPageState extends State<CompanyPage> {
   final TextEditingController _nationalityController = TextEditingController();
   final TextEditingController _salaryController = TextEditingController();
 
-  // Sample team members data
+  // Sample team members data with Ethereum addresses
   final List<Map<String, dynamic>> _teamMembers = [
     {
       'name': 'Sarah Johnson',
       'role': 'CEO & Founder',
       'nationality': 'United States',
       'salary': '15,000',
+      'ethAddress': '0x742d35Cc6634C0532925a3b8D6Ac0bC2bb7651B2',
       'icon': Icons.person,
       'color': AppColors.primary,
     },
@@ -28,6 +30,7 @@ class _CompanyPageState extends State<CompanyPage> {
       'role': 'CTO',
       'nationality': 'Canada',
       'salary': '12,500',
+      'ethAddress': '0x8ba1f109551bD432803012645Hac136c593weF93',
       'icon': Icons.code,
       'color': AppColors.aiBlue,
     },
@@ -36,6 +39,7 @@ class _CompanyPageState extends State<CompanyPage> {
       'role': 'Head of Marketing',
       'nationality': 'United Kingdom',
       'salary': '10,800',
+      'ethAddress': '0x1234567890123456789012345678901234567890',
       'icon': Icons.campaign,
       'color': AppColors.artPurple,
     },
@@ -44,6 +48,7 @@ class _CompanyPageState extends State<CompanyPage> {
       'role': 'Lead Developer',
       'nationality': 'Spain',
       'salary': '9,500',
+      'ethAddress': '0xabcdef1234567890abcdef1234567890abcdef12',
       'icon': Icons.computer,
       'color': AppColors.blockchainOrange,
     },
@@ -52,6 +57,7 @@ class _CompanyPageState extends State<CompanyPage> {
       'role': 'Product Manager',
       'nationality': 'Singapore',
       'salary': '11,200',
+      'ethAddress': '0x9876543210987654321098765432109876543210',
       'icon': Icons.inventory,
       'color': AppColors.climateGreen,
     },
@@ -60,6 +66,7 @@ class _CompanyPageState extends State<CompanyPage> {
       'role': 'Designer',
       'nationality': 'Australia',
       'salary': '8,800',
+      'ethAddress': '0xfedcba0987654321fedcba0987654321fedcba09',
       'icon': Icons.palette,
       'color': AppColors.warning,
     },
@@ -294,6 +301,23 @@ class _CompanyPageState extends State<CompanyPage> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: AppSpacing.tightSpacing),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: _showAllEthereumAddresses,
+                              icon: const Icon(Icons.currency_bitcoin),
+                              label: const Text('View All Addresses'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary.withOpacity(0.1),
+                                foregroundColor: AppColors.primary,
+                                elevation: 0,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -357,19 +381,42 @@ class _CompanyPageState extends State<CompanyPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Avatar
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: member['color'].withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  member['icon'],
-                  color: member['color'],
-                  size: 30,
-                ),
+              // Avatar with Ethereum indicator
+              Stack(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: member['color'].withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      member['icon'],
+                      color: member['color'],
+                      size: 30,
+                    ),
+                  ),
+                  // Ethereum address indicator
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: const Icon(
+                        Icons.currency_bitcoin,
+                        color: Colors.white,
+                        size: 12,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: AppSpacing.secondarySpacing),
               
@@ -434,6 +481,63 @@ class _CompanyPageState extends State<CompanyPage> {
             _buildDetailRow('Role', member['role']),
             _buildDetailRow('Nationality', member['nationality']),
             _buildDetailRow('Monthly Salary', '\$${member['salary']} USDC'),
+            const SizedBox(height: AppSpacing.secondarySpacing),
+            // Ethereum Address Section
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.currency_bitcoin,
+                      color: AppColors.primary,
+                      size: 16,
+                    ),
+                    const SizedBox(width: AppSpacing.tightSpacing),
+                    Text(
+                      'Ethereum Address',
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.tightSpacing),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppSpacing.secondarySpacing),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceVariant,
+                    borderRadius: BorderRadius.circular(AppRadius.smallRadius),
+                    border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _formatAddress(member['ethAddress']),
+                          style: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.tightSpacing),
+                      InkWell(
+                        onTap: () => _copyAddressToClipboard(member['ethAddress']),
+                        borderRadius: BorderRadius.circular(AppRadius.smallRadius),
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Icon(
+                            Icons.copy,
+                            size: 16,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
         actions: [
@@ -549,6 +653,7 @@ class _CompanyPageState extends State<CompanyPage> {
         'role': 'Team Member',
         'nationality': _nationalityController.text,
         'salary': _salaryController.text,
+        'ethAddress': "0x8ba1f109551bD432803012645Hac136c593weF95",
         'icon': Icons.person,
         'color': AppColors.primary,
       });
@@ -751,5 +856,181 @@ class _CompanyPageState extends State<CompanyPage> {
   int _getUniqueCountries() {
     final countries = _teamMembers.map((member) => member['nationality']).toSet();
     return countries.length;
+  }
+
+  // Helper method to format Ethereum address
+  String _formatAddress(String address) {
+    if (address.length > 14) {
+      return '${address.substring(0, 6)}...${address.substring(address.length - 8)}';
+    }
+    return address;
+  }
+
+  // Helper method to copy address to clipboard
+  void _copyAddressToClipboard(String address) {
+    Clipboard.setData(ClipboardData(text: address));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Ethereum address copied to clipboard!'),
+        backgroundColor: AppColors.success,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
+        ),
+      ),
+    );
+  }
+
+  void _showAllEthereumAddresses() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(
+              Icons.currency_bitcoin,
+              color: AppColors.primary,
+              size: 24,
+            ),
+            const SizedBox(width: AppSpacing.tightSpacing),
+            const Text('Team Ethereum Addresses'),
+          ],
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Here are all the Ethereum addresses for your team members:',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.mainSpacing),
+                ...(_teamMembers.map((member) => _buildAddressCard(member)).toList()),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+          ElevatedButton(
+            onPressed: () => _copyAllAddressesToClipboard(),
+            child: const Text('Copy All'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddressCard(Map<String, dynamic> member) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: AppSpacing.secondarySpacing),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.mainSpacing),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: member['color'].withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    member['icon'],
+                    color: member['color'],
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.secondarySpacing),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        member['name'],
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        member['role'],
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.secondarySpacing),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(AppSpacing.secondarySpacing),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceVariant,
+                borderRadius: BorderRadius.circular(AppRadius.smallRadius),
+                border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      member['ethAddress'],
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 11,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.tightSpacing),
+                  InkWell(
+                    onTap: () => _copyAddressToClipboard(member['ethAddress']),
+                    borderRadius: BorderRadius.circular(AppRadius.smallRadius),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.copy,
+                        size: 16,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _copyAllAddressesToClipboard() {
+    final allAddresses = _teamMembers
+        .map((member) => '${member['name']}: ${member['ethAddress']}')
+        .join('\n');
+    
+    Clipboard.setData(ClipboardData(text: allAddresses));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('All Ethereum addresses copied to clipboard!'),
+        backgroundColor: AppColors.success,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.buttonRadius),
+        ),
+      ),
+    );
   }
 } 
