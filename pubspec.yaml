@@ -42,6 +42,8 @@ dependencies:
   shared_preferences: ^2.2.2
   http: ^1.1.0
   fl_chart: ^0.68.0
+  web3dart: ^2.7.3
+  decimal: ^3.0.2
 
 dev_dependencies:
   flutter_test:
@@ -69,3 +71,4 @@ flutter:
   assets:
     - .env
     - lib/assets/
+    - lib/core/abi.json

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_starter/core/privy_manager.dart'; // Removed unused import
 import 'package:flutter_starter/features/authenticated/authenticated_screen.dart';
 import 'package:flutter_starter/features/email_authentication/email_authentication_screen.dart';
-import 'package:flutter_starter/features/home/home_screen.dart';
 import 'package:flutter_starter/features/wallet/eth_wallet_screen.dart';
 import 'package:flutter_starter/features/wallet/solana_wallet_screen.dart';
 import 'package:flutter_starter/core/bottom_navbar.dart';
