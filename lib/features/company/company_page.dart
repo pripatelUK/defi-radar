@@ -282,26 +282,26 @@ class _CompanyPageState extends State<CompanyPage> {
                       ),
                       const SizedBox(height: AppSpacing.mainSpacing),
                       
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () => _showComingSoonDialog(context, 'Process Payroll'),
-                              icon: const Icon(Icons.account_balance_wallet),
-                              label: const Text('Process Payroll'),
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.tightSpacing),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () => _showComingSoonDialog(context, 'Generate Report'),
-                              icon: const Icon(Icons.assessment),
-                              label: const Text('Team Report'),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.tightSpacing),
+                    //   Row(
+                    //     children: [
+                    //       Expanded(
+                    //         child: ElevatedButton.icon(
+                    //           onPressed: () => _showComingSoonDialog(context, 'Process Payroll'),
+                    //           icon: const Icon(Icons.account_balance_wallet),
+                    //           label: const Text('Process Payroll'),
+                    //         ),
+                    //       ),
+                    //       const SizedBox(width: AppSpacing.tightSpacing),
+                    //       Expanded(
+                    //         child: ElevatedButton.icon(
+                    //           onPressed: () => _showComingSoonDialog(context, 'Generate Report'),
+                    //           icon: const Icon(Icons.assessment),
+                    //           label: const Text('Team Report'),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    //   const SizedBox(height: AppSpacing.tightSpacing),
                       Row(
                         children: [
                           Expanded(

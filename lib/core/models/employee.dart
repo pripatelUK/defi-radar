@@ -71,9 +71,9 @@ class Employee {
   static String _getWalletAddressForEmployee(String name) {
     final walletMap = {
       'Sarah Johnson': '0x6827b8f6cc60497d9bf5210d602C0EcaFDF7C405',
-      'Mike Chen': '0x8ba1f109551bD432803012645AaC136c5D4b1991',
-      'Emily Davis': '0x3Ec8593F930eA85F6b6b0b1c0E5A5a5a5A5A5a5A',
-      'Alex Rodriguez': '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6aa',
+      'Mike Chen': '0x8BA1F109551BD432803012645AaC136c5d4B1991',
+      'Emily Davis': '0x3Ec8593f930ea85F6B6b0B1c0e5a5a5A5a5A5A5a',
+      'Alex Rodriguez': '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa',
       'Lisa Wong': '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
       'David Miller': '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
     };

@@ -547,7 +547,7 @@ class _PayrollModalState extends State<PayrollModal> {
             _buildDetailRow('Total Amount', _payrollBatch.totalAmountFormatted),
             _buildDetailRow('Recipients', '${_payrollBatch.employees.length} employees'),
             _buildDetailRow('Estimated Gas', '${_validationResult!.estimatedGasLimit}'),
-            _buildDetailRow('Your Balance', '\$${(_validationResult!.userBalance / BigInt.from(1000000))}'),
+            // _buildDetailRow('Your Balance', '\$${(_validationResult!.userBalance / BigInt.from(1000000))}'),
           ],
         ),
       ),

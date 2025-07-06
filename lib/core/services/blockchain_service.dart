@@ -12,8 +12,8 @@ import 'package:convert/convert.dart';
 /// Service for blockchain operations related to payroll processing
 class BlockchainService {
   // Contract addresses
-  static const String _disperseContractAddress = '0xd152f549545093347a162dce210e7293f1452150';
-  static const String _usdcTokenAddress = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
+  static const String _disperseContractAddress = '0xD152f549545093347A162Dce210e7293f1452150';
+  static const String _usdcTokenAddress = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
   static const String _rpcUrl = 'https://virtual.mainnet.rpc.tenderly.co/0c0f39b1-4fd9-4613-b243-3ac22ee83f6d';
   
   // Web3 client
@@ -256,31 +256,35 @@ class BlockchainService {
           try {
             final signedTransaction = signResponse.data.toString();
             
-            // Send signed transaction using Privy
-            final sendRequest = EthereumRpcRequest(
-              method: "eth_sendRawTransaction",
-              params: [signedTransaction],
+            // Send signed transaction using our RPC URL
+            final response = await http.post(
+              Uri.parse(_rpcUrl),
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode({
+                'jsonrpc': '2.0',
+                'method': 'eth_sendRawTransaction',
+                'params': [signedTransaction],
+                'id': 1,
+              }),
             );
             
-            final sendResult = await wallet.provider.request(sendRequest);
+            final responseBody = jsonDecode(response.body);
             
-            sendResult.fold(
-              onSuccess: (sendResponse) {
-                final txHash = sendResponse.data.toString();
-                completer.complete(PayrollTransactionResult(
-                  success: true,
-                  transactionHash: txHash,
-                  message: 'Payroll processed successfully',
-                ));
-              },
-              onFailure: (error) {
-                completer.complete(PayrollTransactionResult(
-                  success: false,
-                  error: error.message,
-                  message: 'Failed to send transaction',
-                ));
-              },
-            );
+            if (response.statusCode == 200 && responseBody['result'] != null) {
+              final txHash = responseBody['result'];
+              completer.complete(PayrollTransactionResult(
+                success: true,
+                transactionHash: txHash,
+                message: 'Payroll processed successfully',
+              ));
+            } else {
+              final error = responseBody['error']?['message'] ?? 'Unknown error';
+              completer.complete(PayrollTransactionResult(
+                success: false,
+                error: error,
+                message: 'Failed to send transaction',
+              ));
+            }
           } catch (e) {
             completer.complete(PayrollTransactionResult(
               success: false,
@@ -328,6 +332,15 @@ class BlockchainService {
       // Convert gasPrice to BigInt properly
       final gasPriceBigInt = gasPrice.getInWei;
       
+      // Set tip to 1 Gwei
+      final maxPriorityFeePerGas = BigInt.from(1000000000); // 1 Gwei
+      
+      // Ensure maxFeePerGas is at least maxPriorityFeePerGas + base fee
+      final calculatedMaxFee = gasPriceBigInt * BigInt.from(2);
+      final maxFeePerGas = calculatedMaxFee > maxPriorityFeePerGas 
+          ? calculatedMaxFee 
+          : maxPriorityFeePerGas + BigInt.from(1000000000); // tip + 1 Gwei base fee minimum
+      
       // Build transaction payload for Privy (JSON format)
       final txPayload = {
         "from": userWalletAddress,
@@ -336,8 +349,8 @@ class BlockchainService {
         "data": dataHex,
         "chainId": "0x1", // Mainnet chain ID
         "gasLimit": "0x${gasLimit.toRadixString(16)}",
-        "maxPriorityFeePerGas": "0x3B9ACA00", // 1 Gwei tip
-        "maxFeePerGas": "0x${(gasPriceBigInt * BigInt.from(2)).toRadixString(16)}", // 2x gas price as max fee
+        "maxPriorityFeePerGas": "0x${maxPriorityFeePerGas.toRadixString(16)}",
+        "maxFeePerGas": "0x${maxFeePerGas.toRadixString(16)}",
       };
       
       return jsonEncode(txPayload);
